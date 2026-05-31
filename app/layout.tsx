@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Lora } from "next/font/google";
+import "@/lib/env"; // Validate environment at startup
 import "./globals.css";
 import { Providers } from "@/components/providers";
 

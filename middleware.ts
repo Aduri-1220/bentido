@@ -11,13 +11,20 @@ function clientIp(req: NextRequest): string {
   );
 }
 
-function withSecurityHeaders(res: NextResponse): NextResponse {
+function generateRequestId(): string {
+  return `req_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+}
+
+function withSecurityHeaders(res: NextResponse, requestId?: string): NextResponse {
   res.headers.set("X-Content-Type-Options", "nosniff");
   res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   res.headers.set(
     "Permissions-Policy",
     "camera=(), microphone=(), geolocation=()",
   );
+  if (requestId) {
+    res.headers.set("X-Request-ID", requestId);
+  }
   return res;
 }
 
@@ -39,6 +46,7 @@ const RATE: Record<string, { prefix: string; max: number; windowSec: number }> =
   };
 
 export async function middleware(req: NextRequest) {
+  const requestId = generateRequestId();
   const path = req.nextUrl.pathname;
 
   /** Staff should not remain on customer onboarding (JWT carries isWorker / isAdmin). */
@@ -53,13 +61,13 @@ export async function middleware(req: NextRequest) {
         const url = req.nextUrl.clone();
         url.pathname = "/worker";
         url.search = "";
-        return withSecurityHeaders(NextResponse.redirect(url));
+        return withSecurityHeaders(NextResponse.redirect(url), requestId);
       }
       if (token?.isAdmin === true) {
         const url = req.nextUrl.clone();
         url.pathname = "/dashboard";
         url.search = "";
-        return withSecurityHeaders(NextResponse.redirect(url));
+        return withSecurityHeaders(NextResponse.redirect(url), requestId);
       }
     }
   }
@@ -82,11 +90,12 @@ export async function middleware(req: NextRequest) {
           headers: { "Retry-After": String(r.retryAfterSec) },
         },
       );
-      return withSecurityHeaders(res);
+      return withSecurityHeaders(res, requestId);
     }
   }
 
-  return withSecurityHeaders(NextResponse.next());
+  const res = NextResponse.next();
+  return withSecurityHeaders(res, requestId);
 }
 
 export const config = {

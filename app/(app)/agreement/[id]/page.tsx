@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Download } from "lucide-react";
+import { ArrowLeft, Download, Fingerprint } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { loadAgreement, uploadDraftCheckoutReady } from "@/lib/agreement";
 import { StatusTimeline } from "./status-timeline";
@@ -181,6 +181,15 @@ export default async function AgreementStatusPage({
               </ul>
             )}
           </Card>
+
+          {parsed.agreement.status === "E_SIGNING" && (
+            <Button asChild variant="brand" size="lg" className="w-full">
+              <Link href={`/agreement/${params.id}/esign`}>
+                <Fingerprint className="mr-2 h-4 w-4" />
+                Sign with Aadhaar
+              </Link>
+            </Button>
+          )}
 
           <Button asChild variant="outline" size="lg" className="w-full">
             <Link href={`/agreement/${params.id}/preview`} target="_blank">

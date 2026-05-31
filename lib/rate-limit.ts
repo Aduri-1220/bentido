@@ -1,8 +1,6 @@
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis/cloudflare";
 
-let warnedMissingRedis = false;
-
 export async function rateLimitIdentity(
   prefix: string,
   identity: string,
@@ -12,12 +10,12 @@ export async function rateLimitIdentity(
   const url = process.env.UPSTASH_REDIS_REST_URL?.trim();
   const token = process.env.UPSTASH_REDIS_REST_TOKEN?.trim();
   if (!url || !token) {
-    if (!warnedMissingRedis) {
-      warnedMissingRedis = true;
-      console.warn(
-        "[rate-limit] UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN not set — auth routes are not rate limited.",
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN must be set in production (rate limiting required)",
       );
     }
+    // In dev, allow requests without rate limiting
     return { ok: true };
   }
 

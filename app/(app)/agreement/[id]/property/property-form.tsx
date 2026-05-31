@@ -565,7 +565,8 @@ export function PropertyForm({
                         type="number"
                         min={1}
                         max={999}
-                        className="text-center tabular-nums"
+                        inputMode="numeric"
+                        className="text-center tabular-nums [-moz-appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                         {...register(`customAmenities.${i}.units` as const, {
                           valueAsNumber: true,
                         })}
