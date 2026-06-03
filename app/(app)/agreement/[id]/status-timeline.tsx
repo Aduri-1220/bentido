@@ -146,28 +146,32 @@ export function StatusTimeline({
         })}
       </ol>
 
-      <div className="rounded-xl border bg-slate-50 p-4 text-sm text-slate-700">
-        <div className="font-semibold text-slate-900">Demo control</div>
-        <p className="mt-1 text-xs text-slate-600">
-          In production this advances automatically as stamping, e-signing and
-          courier callbacks come in. For now you can step through the flow
-          manually.
-        </p>
-        <Button
-          onClick={advance}
-          disabled={!nextStage || loading}
-          variant="brand"
-          size="sm"
-          className="mt-3"
-        >
-          {loading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <ArrowRight className="h-4 w-4" />
-          )}
-          {nextStage ? `Advance to "${nextStage.label}"` : "Workflow completed"}
-        </Button>
-      </div>
+      {process.env.NODE_ENV !== "production" && (
+        <div className="rounded-xl border bg-slate-50 p-4 text-sm text-slate-700">
+          <div className="font-semibold text-slate-900">Demo control</div>
+          <p className="mt-1 text-xs text-slate-600">
+            In production this advances automatically as stamping, e-signing
+            and courier callbacks come in. For now you can step through the
+            flow manually.
+          </p>
+          <Button
+            onClick={advance}
+            disabled={!nextStage || loading}
+            variant="brand"
+            size="sm"
+            className="mt-3"
+          >
+            {loading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <ArrowRight className="h-4 w-4" />
+            )}
+            {nextStage
+              ? `Advance to "${nextStage.label}"`
+              : "Workflow completed"}
+          </Button>
+        </div>
+      )}
     </section>
   );
 }

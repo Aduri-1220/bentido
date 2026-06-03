@@ -51,7 +51,7 @@ export function checkoutContactDisplayName(p: ParsedAgreement): string {
 export function uploadDraftCheckoutReady(p: ParsedAgreement): boolean {
   return (
     p.agreement.wizardEntry === WIZARD_ENTRY_UPLOAD_DRAFT &&
-    !!p.agreement.sourceDraftBlob &&
+    !!p.agreement.sourceDraftR2Key &&
     !!p.terms
   );
 }
@@ -59,8 +59,8 @@ export function uploadDraftCheckoutReady(p: ParsedAgreement): boolean {
 export function completedSteps(p: ParsedAgreement): Record<string, boolean> {
   const uploadDraft = p.agreement.wizardEntry === WIZARD_ENTRY_UPLOAD_DRAFT;
   const draftDone = uploadDraft
-    ? !!(p.agreement.sourceDraftBlob && p.terms)
-    : !!p.agreement.sourceDraftBlob ||
+    ? !!(p.agreement.sourceDraftR2Key && p.terms)
+    : !!p.agreement.sourceDraftR2Key ||
       p.agreement.sourceDraftSkipped === true ||
       !!p.property;
   return {
@@ -77,7 +77,7 @@ export function completedSteps(p: ParsedAgreement): Record<string, boolean> {
 /** First wizard step slug that is not yet complete, or `null` if the wizard is done. */
 export function firstIncompleteWizardStep(p: ParsedAgreement): string | null {
   if (p.agreement.wizardEntry === WIZARD_ENTRY_UPLOAD_DRAFT) {
-    if (!p.agreement.sourceDraftBlob) return "draft";
+    if (!p.agreement.sourceDraftR2Key) return "draft";
     if (!p.terms) return "draft";
     return null;
   }

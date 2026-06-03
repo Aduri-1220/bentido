@@ -96,9 +96,10 @@ model Agreement {
   witnessesJson  String?
   stampValue     Int? // in rupees
   /// Optional: user-uploaded prior PDF/DOCX; structured wizard still drives the legal draft.
+  /// File bytes live in Cloudflare R2 under sourceDraftR2Key; only metadata persists here.
   sourceDraftOriginalName String?
   sourceDraftMime         String?
-  sourceDraftBlob         Bytes?
+  sourceDraftR2Key        String?
   /// True when user continues without uploading (first wizard step completed).
   sourceDraftSkipped      Boolean  @default(false)
   createdAt      DateTime @default(now())
@@ -134,7 +135,8 @@ model Delivery {
   address     String?
   trackingId  String?
   /// Admin-uploaded executed agreement PDF for DIGITAL and SCANNED_ONLINE delivery; customer downloads after Out for Delivery.
-  scannedCopyBlob         Bytes?
+  /// File bytes live in Cloudflare R2 under scannedCopyR2Key; only metadata persists here.
+  scannedCopyR2Key        String?
   scannedCopyMime         String?
   scannedCopyOriginalName String?
   scannedCopyUploadedAt   DateTime?
@@ -191,6 +193,36 @@ model KycVerification {
 
   @@unique([agreementId, party])
   @@index([agreementId])
+}
+
+/// Append-only audit trail for compliance and incident review.
+/// Every state-mutating action by users, admins, workers, or system jobs writes one row.
+model AuditLog {
+  id           String   @id @default(cuid())
+  /// USER | ADMIN | WORKER | SYSTEM
+  actorType    String
+  /// User id, "system:inngest", "system:webhook", etc.
+  actorId      String
+  /// e.g. "agreement.create", "payment.success", "agreement.status_change", "delivery.executed_copy_uploaded"
+  action       String
+  /// Foreign-key target, when relevant.
+  agreementId  String?
+  /// JSON of pre-change state, when applicable.
+  before       String?
+  /// JSON of post-change state, when applicable.
+  after        String?
+  /// IP (when available) — best-effort, can be spoofed behind proxies.
+  ip           String?
+  /// User agent header.
+  userAgent    String?
+  /// Free-form correlation id (X-Request-ID, Inngest event id, etc).
+  correlationId String?
+  createdAt    DateTime @default(now())
+
+  @@index([agreementId])
+  @@index([actorId])
+  @@index([action])
+  @@index([createdAt])
 }
 
 /// Aadhaar eSign request — one row per signing party per agreement.

@@ -1,29 +1,16 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
 import { WIZARD_ENTRY_UPLOAD_DRAFT } from "@/lib/constants";
+import { prisma } from "@/lib/db";
+import { validateUploadedDoc } from "@/lib/file-validation";
+import { logger } from "@/lib/logger";
+import {
+  r2DeleteObject,
+  r2KeyForSourceDraft,
+  r2PutObject,
+} from "@/lib/r2";
 import { getCurrentUser } from "@/lib/session";
 
 const MAX_BYTES = 5 * 1024 * 1024;
-
-function isAllowedDoc(file: File): boolean {
-  const mime = file.type;
-  if (
-    mime === "application/pdf" ||
-    mime ===
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-  ) {
-    return true;
-  }
-  const n = file.name.toLowerCase();
-  return n.endsWith(".pdf") || n.endsWith(".docx");
-}
-
-function inferMime(file: File): string {
-  if (file.type) return file.type;
-  return file.name.toLowerCase().endsWith(".pdf")
-    ? "application/pdf"
-    : "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-}
 
 export async function POST(
   req: Request,
@@ -35,6 +22,7 @@ export async function POST(
 
   const agreement = await prisma.agreement.findFirst({
     where: { id: params.id, userId: user.id },
+    select: { id: true, wizardEntry: true, sourceDraftR2Key: true },
   });
   if (!agreement)
     return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -63,11 +51,19 @@ export async function POST(
       );
     }
 
+    if (agreement.sourceDraftR2Key) {
+      try {
+        await r2DeleteObject(agreement.sourceDraftR2Key);
+      } catch (err) {
+        logger.warn("R2 delete failed on skip", { agreementId: params.id });
+      }
+    }
+
     await prisma.agreement.update({
       where: { id: params.id },
       data: {
         sourceDraftSkipped: true,
-        sourceDraftBlob: null,
+        sourceDraftR2Key: null,
         sourceDraftMime: null,
         sourceDraftOriginalName: null,
       },
@@ -80,29 +76,56 @@ export async function POST(
   if (!(file instanceof File))
     return NextResponse.json({ error: "Missing file" }, { status: 400 });
 
-  if (file.size > MAX_BYTES)
-    return NextResponse.json(
-      { error: "File too large (max 5 MB)" },
-      { status: 400 },
-    );
-
-  if (!isAllowedDoc(file))
-    return NextResponse.json(
-      { error: "Only PDF or DOCX files are allowed" },
-      { status: 400 },
-    );
-
   const buf = Buffer.from(await file.arrayBuffer());
+  const validation = await validateUploadedDoc({
+    buffer: buf,
+    originalName: file.name,
+    declaredMime: file.type,
+    maxBytes: MAX_BYTES,
+  });
+  if (!validation.ok) {
+    return NextResponse.json({ error: validation.reason }, { status: 400 });
+  }
+  const doc = validation.doc;
+
+  const newKey = r2KeyForSourceDraft(params.id, doc.originalName);
+  try {
+    await r2PutObject({
+      key: newKey,
+      body: doc.buffer,
+      contentType: doc.mime,
+      contentDisposition: `attachment; filename="${encodeURIComponent(doc.originalName)}"`,
+    });
+  } catch (err) {
+    logger.error("R2 upload failed", err, { agreementId: params.id });
+    return NextResponse.json(
+      { error: "Could not store file. Try again." },
+      { status: 502 },
+    );
+  }
+
+  // Best-effort delete of the previous object so we don't accumulate orphans.
+  const previousKey = agreement.sourceDraftR2Key;
 
   await prisma.agreement.update({
     where: { id: params.id },
     data: {
-      sourceDraftBlob: buf,
-      sourceDraftMime: inferMime(file),
-      sourceDraftOriginalName: file.name,
+      sourceDraftR2Key: newKey,
+      sourceDraftMime: doc.mime,
+      sourceDraftOriginalName: doc.originalName,
       sourceDraftSkipped: false,
     },
   });
+
+  if (previousKey && previousKey !== newKey) {
+    try {
+      await r2DeleteObject(previousKey);
+    } catch {
+      logger.warn("R2 delete of previous draft failed", {
+        agreementId: params.id,
+      });
+    }
+  }
 
   return NextResponse.json({ ok: true });
 }

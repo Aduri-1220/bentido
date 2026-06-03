@@ -97,7 +97,7 @@ export async function POST(
         ...(deliveryUsesExecutedCopyUpload(d.delivery)
           ? {}
           : {
-              scannedCopyBlob: null,
+              scannedCopyR2Key: null,
               scannedCopyMime: null,
               scannedCopyOriginalName: null,
               scannedCopyUploadedAt: null,

@@ -48,7 +48,7 @@ export default async function WorkerAgreementDetailPage({
 
   const hasUploadedBlob =
     (await prisma.agreement.count({
-      where: { id: params.id, sourceDraftBlob: { not: null } },
+      where: { id: params.id, sourceDraftR2Key: { not: null } },
     })) > 0;
 
   const parsedFields = parseAgreementJsonFields(agreement);

@@ -56,3 +56,16 @@ class Logger {
 }
 
 export const logger = new Logger();
+
+/**
+ * Extract the request id set by `middleware.ts` (header X-Request-ID).
+ * Use in route handlers so logs and audit rows can be correlated end-to-end.
+ *   const reqId = requestIdFromHeaders(req.headers);
+ *   logger.info("agreement created", { requestId: reqId, agreementId });
+ */
+export function requestIdFromHeaders(
+  headers: Headers | Request["headers"],
+): string | undefined {
+  const h = headers as Headers;
+  return h.get("x-request-id") ?? undefined;
+}

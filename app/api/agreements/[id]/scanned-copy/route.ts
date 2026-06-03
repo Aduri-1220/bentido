@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
-import { agreementStatusAllowsExecutedCopyDownload } from "@/lib/delivery-executed-copy";
 import { prisma } from "@/lib/db";
+import { agreementStatusAllowsExecutedCopyDownload } from "@/lib/delivery-executed-copy";
+import { logger } from "@/lib/logger";
+import { r2PresignedGetUrl } from "@/lib/r2";
 import { getCurrentUser } from "@/lib/session";
 
 export async function GET(
@@ -33,26 +35,34 @@ export async function GET(
     where: {
       agreementId: params.id,
       method: { in: ["DIGITAL", "SCANNED_ONLINE"] },
-      scannedCopyBlob: { not: null },
+      scannedCopyR2Key: { not: null },
     },
     select: {
-      scannedCopyBlob: true,
+      scannedCopyR2Key: true,
       scannedCopyMime: true,
       scannedCopyOriginalName: true,
     },
   });
-  if (!row?.scannedCopyBlob) {
+  if (!row?.scannedCopyR2Key) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
   const name = row.scannedCopyOriginalName ?? "scanned-agreement.pdf";
   const mime = row.scannedCopyMime ?? "application/pdf";
 
-  return new NextResponse(new Uint8Array(row.scannedCopyBlob), {
-    headers: {
-      "Content-Type": mime,
-      "Content-Disposition": `attachment; filename="${encodeURIComponent(name)}"`,
-      "Cache-Control": "private, no-store",
-    },
-  });
+  try {
+    const url = await r2PresignedGetUrl(row.scannedCopyR2Key, 300, {
+      contentType: mime,
+      contentDisposition: `attachment; filename="${encodeURIComponent(name)}"`,
+    });
+    return NextResponse.redirect(url, { status: 302 });
+  } catch (err) {
+    logger.error("R2 presign failed (executed copy)", err, {
+      agreementId: params.id,
+    });
+    return NextResponse.json(
+      { error: "Could not generate download link" },
+      { status: 502 },
+    );
+  }
 }

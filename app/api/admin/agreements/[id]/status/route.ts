@@ -6,6 +6,7 @@ import {
   paymentQualifiesForWorkflow,
   validateUserHttpStatusTransition,
 } from "@/lib/agreement-status";
+import { auditContextFromRequest, recordAuditEvent } from "@/lib/audit-log";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { staffAgreementAccessForUserId } from "@/lib/staff-agreement-access";
@@ -63,5 +64,18 @@ export async function POST(
     where: { id: params.id },
     data: { status: parsed.data.status },
   });
+
+  const ctx = auditContextFromRequest(req);
+  await recordAuditEvent({
+    actorType: "ADMIN",
+    actorId: user.id,
+    action: "agreement.status_change",
+    agreementId: params.id,
+    before: { status: current },
+    after: { status: parsed.data.status },
+    ip: ctx.ip,
+    userAgent: ctx.userAgent,
+  });
+
   return NextResponse.json({ agreement: updated });
 }

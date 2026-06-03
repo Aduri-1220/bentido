@@ -23,7 +23,7 @@ export default async function DraftStepPage({
 
   const uploadRequired =
     parsed.agreement.wizardEntry === WIZARD_ENTRY_UPLOAD_DRAFT;
-  const hasUploadedDraft = !!parsed.agreement.sourceDraftBlob;
+  const hasUploadedDraft = !!parsed.agreement.sourceDraftR2Key;
 
   return (
     <WizardShell

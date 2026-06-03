@@ -1,17 +1,19 @@
 import { NextResponse } from "next/server";
+import { recordAuditEvent, auditContextFromRequest } from "@/lib/audit-log";
 import { prisma } from "@/lib/db";
 import { deliveryUsesExecutedCopyUpload } from "@/lib/delivery-executed-copy";
+import { validateUploadedDoc } from "@/lib/file-validation";
+import { logger } from "@/lib/logger";
+import {
+  r2DeleteObject,
+  r2KeyForExecutedCopy,
+  r2PresignedGetUrl,
+  r2PutObject,
+} from "@/lib/r2";
 import { getCurrentUser } from "@/lib/session";
 import { staffAgreementAccessForUserId } from "@/lib/staff-agreement-access";
 
 const MAX_BYTES = 15 * 1024 * 1024;
-
-function inferMime(file: File): string {
-  if (file.type) return file.type;
-  const n = file.name.toLowerCase();
-  if (n.endsWith(".pdf")) return "application/pdf";
-  return "application/octet-stream";
-}
 
 export async function GET(
   _req: Request,
@@ -25,28 +27,36 @@ export async function GET(
     where: {
       agreementId: params.id,
       method: { in: ["DIGITAL", "SCANNED_ONLINE"] },
-      scannedCopyBlob: { not: null },
+      scannedCopyR2Key: { not: null },
     },
     select: {
-      scannedCopyBlob: true,
+      scannedCopyR2Key: true,
       scannedCopyMime: true,
       scannedCopyOriginalName: true,
     },
   });
-  if (!row?.scannedCopyBlob) {
+  if (!row?.scannedCopyR2Key) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
   const name = row.scannedCopyOriginalName ?? "scanned-agreement.pdf";
   const mime = row.scannedCopyMime ?? "application/pdf";
 
-  return new NextResponse(new Uint8Array(row.scannedCopyBlob), {
-    headers: {
-      "Content-Type": mime,
-      "Content-Disposition": `attachment; filename="${encodeURIComponent(name)}"`,
-      "Cache-Control": "private, no-store",
-    },
-  });
+  try {
+    const url = await r2PresignedGetUrl(row.scannedCopyR2Key, 300, {
+      contentType: mime,
+      contentDisposition: `attachment; filename="${encodeURIComponent(name)}"`,
+    });
+    return NextResponse.redirect(url, { status: 302 });
+  } catch (err) {
+    logger.error("R2 presign failed (admin executed copy)", err, {
+      agreementId: params.id,
+    });
+    return NextResponse.json(
+      { error: "Could not generate download link" },
+      { status: 502 },
+    );
+  }
 }
 
 export async function POST(
@@ -59,6 +69,7 @@ export async function POST(
 
   const delivery = await prisma.delivery.findUnique({
     where: { agreementId: params.id },
+    select: { method: true, scannedCopyR2Key: true },
   });
   if (!delivery) {
     return NextResponse.json(
@@ -87,33 +98,74 @@ export async function POST(
   if (!(fileField instanceof File) || fileField.size === 0) {
     return NextResponse.json({ error: "Missing file" }, { status: 400 });
   }
-  if (fileField.size > MAX_BYTES) {
-    return NextResponse.json(
-      { error: "File too large (max 15 MB)" },
-      { status: 400 },
-    );
-  }
-
-  const lower = fileField.name.toLowerCase();
-  if (!lower.endsWith(".pdf") && fileField.type !== "application/pdf") {
-    return NextResponse.json(
-      { error: "Only PDF files are allowed" },
-      { status: 400 },
-    );
-  }
 
   const buf = Buffer.from(await fileField.arrayBuffer());
-  const mime = inferMime(fileField);
-  const originalName = fileField.name;
+  const validation = await validateUploadedDoc({
+    buffer: buf,
+    originalName: fileField.name,
+    declaredMime: fileField.type,
+    maxBytes: MAX_BYTES,
+  });
+  if (!validation.ok) {
+    return NextResponse.json({ error: validation.reason }, { status: 400 });
+  }
+  if (validation.doc.mime !== "application/pdf") {
+    return NextResponse.json(
+      { error: "Executed copy must be a PDF." },
+      { status: 400 },
+    );
+  }
+
+  const doc = validation.doc;
+  const newKey = r2KeyForExecutedCopy(params.id, doc.originalName);
+  try {
+    await r2PutObject({
+      key: newKey,
+      body: doc.buffer,
+      contentType: doc.mime,
+      contentDisposition: `attachment; filename="${encodeURIComponent(doc.originalName)}"`,
+    });
+  } catch (err) {
+    logger.error("R2 upload failed (executed copy)", err, {
+      agreementId: params.id,
+    });
+    return NextResponse.json(
+      { error: "Could not store file. Try again." },
+      { status: 502 },
+    );
+  }
+
+  const previousKey = delivery.scannedCopyR2Key;
 
   await prisma.delivery.update({
     where: { agreementId: params.id },
     data: {
-      scannedCopyBlob: buf,
-      scannedCopyMime: mime,
-      scannedCopyOriginalName: originalName,
+      scannedCopyR2Key: newKey,
+      scannedCopyMime: doc.mime,
+      scannedCopyOriginalName: doc.originalName,
       scannedCopyUploadedAt: new Date(),
     },
+  });
+
+  if (previousKey && previousKey !== newKey) {
+    try {
+      await r2DeleteObject(previousKey);
+    } catch {
+      logger.warn("R2 delete of previous executed copy failed", {
+        agreementId: params.id,
+      });
+    }
+  }
+
+  const ctx = auditContextFromRequest(req);
+  await recordAuditEvent({
+    actorType: "ADMIN",
+    actorId: user.id,
+    action: "delivery.executed_copy_uploaded",
+    agreementId: params.id,
+    after: { originalName: doc.originalName, mime: doc.mime },
+    ip: ctx.ip,
+    userAgent: ctx.userAgent,
   });
 
   return NextResponse.json({ ok: true });

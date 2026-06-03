@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { auditContextFromRequest, recordAuditEvent } from "@/lib/audit-log";
 import {
   WIZARD_ENTRY_FULL_DETAILS,
   WIZARD_ENTRY_UPLOAD_DRAFT,
   type WizardEntryKind,
 } from "@/lib/constants";
+import { prisma } from "@/lib/db";
 import { enforceUserRateLimit } from "@/lib/rate-limit";
 import { getCurrentUser } from "@/lib/session";
 
@@ -62,5 +63,17 @@ export async function POST(req: Request) {
           : {}),
     },
   });
+
+  const ctx = auditContextFromRequest(req);
+  await recordAuditEvent({
+    actorType: "USER",
+    actorId: user.id,
+    action: "agreement.create",
+    agreementId: agreement.id,
+    after: { wizardEntry: agreement.wizardEntry },
+    ip: ctx.ip,
+    userAgent: ctx.userAgent,
+  });
+
   return NextResponse.json({ id: agreement.id });
 }

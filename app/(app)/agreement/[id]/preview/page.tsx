@@ -85,7 +85,7 @@ export default async function PreviewPage({
         </div>
       </div>
 
-      {parsed.agreement.sourceDraftBlob ? (
+      {parsed.agreement.sourceDraftR2Key ? (
         <div className="no-print mb-6 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
           <span className="font-medium text-slate-900">
             Attached prior draft:{" "}

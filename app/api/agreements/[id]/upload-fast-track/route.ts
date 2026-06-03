@@ -1,32 +1,19 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
 import { WIZARD_ENTRY_UPLOAD_DRAFT } from "@/lib/constants";
-import { getCurrentUser } from "@/lib/session";
+import { prisma } from "@/lib/db";
+import { validateUploadedDoc } from "@/lib/file-validation";
+import { logger } from "@/lib/logger";
+import {
+  r2DeleteObject,
+  r2KeyForSourceDraft,
+  r2PutObject,
+} from "@/lib/r2";
 import { enforceUserRateLimit } from "@/lib/rate-limit";
 import { uploadFastTrackStep1Schema } from "@/lib/schemas";
+import { getCurrentUser } from "@/lib/session";
 import { buildUploadFastTrackPayload } from "@/lib/upload-fast-track";
 
 const MAX_BYTES = 5 * 1024 * 1024;
-
-function isAllowedDoc(file: File): boolean {
-  const mime = file.type;
-  if (
-    mime === "application/pdf" ||
-    mime ===
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-  ) {
-    return true;
-  }
-  const n = file.name.toLowerCase();
-  return n.endsWith(".pdf") || n.endsWith(".docx");
-}
-
-function inferMime(file: File): string {
-  if (file.type) return file.type;
-  return file.name.toLowerCase().endsWith(".pdf")
-    ? "application/pdf"
-    : "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-}
 
 function str(form: FormData, key: string): string {
   const v = form.get(key);
@@ -97,25 +84,42 @@ export async function POST(
   }
 
   const fileField = form.get("file");
-  let buf: Buffer | null = null;
-  let mime: string | null = null;
-  let originalName: string | null = null;
+  let newR2Key: string | null = null;
+  let newMime: string | null = null;
+  let newOriginalName: string | null = null;
 
   if (fileField instanceof File && fileField.size > 0) {
-    if (fileField.size > MAX_BYTES)
+    const buf = Buffer.from(await fileField.arrayBuffer());
+    const validation = await validateUploadedDoc({
+      buffer: buf,
+      originalName: fileField.name,
+      declaredMime: fileField.type,
+      maxBytes: MAX_BYTES,
+    });
+    if (!validation.ok) {
+      return NextResponse.json({ error: validation.reason }, { status: 400 });
+    }
+    const doc = validation.doc;
+    newR2Key = r2KeyForSourceDraft(params.id, doc.originalName);
+    try {
+      await r2PutObject({
+        key: newR2Key,
+        body: doc.buffer,
+        contentType: doc.mime,
+        contentDisposition: `attachment; filename="${encodeURIComponent(doc.originalName)}"`,
+      });
+    } catch (err) {
+      logger.error("R2 upload failed (fast-track)", err, {
+        agreementId: params.id,
+      });
       return NextResponse.json(
-        { error: "File too large (max 5 MB)" },
-        { status: 400 },
+        { error: "Could not store file. Try again." },
+        { status: 502 },
       );
-    if (!isAllowedDoc(fileField))
-      return NextResponse.json(
-        { error: "Only PDF or DOCX files are allowed" },
-        { status: 400 },
-      );
-    buf = Buffer.from(await fileField.arrayBuffer());
-    mime = inferMime(fileField);
-    originalName = fileField.name;
-  } else if (!agreement.sourceDraftBlob) {
+    }
+    newMime = doc.mime;
+    newOriginalName = doc.originalName;
+  } else if (!agreement.sourceDraftR2Key) {
     return NextResponse.json(
       { error: "Upload your PDF or DOCX to continue." },
       { status: 400 },
@@ -124,22 +128,33 @@ export async function POST(
 
   const payload = buildUploadFastTrackPayload(parsedBody.data);
   const stampValue = parsedBody.data.stampValue;
+  const previousKey = agreement.sourceDraftR2Key;
 
   await prisma.agreement.update({
     where: { id: params.id },
     data: {
       ...payload,
       stampValue,
-      ...(buf && mime && originalName
+      ...(newR2Key && newMime && newOriginalName
         ? {
-            sourceDraftBlob: buf,
-            sourceDraftMime: mime,
-            sourceDraftOriginalName: originalName,
+            sourceDraftR2Key: newR2Key,
+            sourceDraftMime: newMime,
+            sourceDraftOriginalName: newOriginalName,
             sourceDraftSkipped: false,
           }
         : {}),
     },
   });
+
+  if (newR2Key && previousKey && previousKey !== newR2Key) {
+    try {
+      await r2DeleteObject(previousKey);
+    } catch {
+      logger.warn("R2 delete of previous draft failed (fast-track)", {
+        agreementId: params.id,
+      });
+    }
+  }
 
   return NextResponse.json({ ok: true });
 }
