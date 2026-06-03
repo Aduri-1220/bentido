@@ -14,9 +14,9 @@ import {
 const features = [
   {
     icon: Scale,
-    title: "Lawyer-vetted templates",
+    title: "Structured templates",
     description:
-      "Every clause is reviewed by practicing advocates and tuned to your state's tenancy laws.",
+      "Clauses tuned for everyday residential leases — clear tenure, rent, deposit, and notice language for your state context.",
   },
   {
     icon: Stamp,
@@ -52,7 +52,7 @@ const features = [
     icon: Clock,
     title: "Ready in minutes",
     description:
-      "What takes weeks at a sub-registrar office takes minutes here — guided every step.",
+      "A guided flow replaces endless back-and-forth — most people finish the same day when both parties are available.",
   },
   {
     icon: ShieldCheck,

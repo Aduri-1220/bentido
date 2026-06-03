@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
 import {
+  Briefcase,
   FileSignature,
   LayoutDashboard,
   LogOut,
@@ -24,6 +25,7 @@ import { Button } from "@/components/ui/button";
 export function AppNav() {
   const { data: session } = useSession();
   const isAdmin = session?.user?.isAdmin === true;
+  const isWorker = session?.user?.isWorker === true;
   const initial = (session?.user?.name || session?.user?.email || "?")
     .charAt(0)
     .toUpperCase();
@@ -57,6 +59,15 @@ export function AppNav() {
               Admin
             </Link>
           ) : null}
+          {isWorker ? (
+            <Link
+              href="/worker"
+              className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-brand-800 hover:bg-brand-50"
+            >
+              <Briefcase className="h-4 w-4" />
+              Worker
+            </Link>
+          ) : null}
         </nav>
 
         <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -84,10 +95,25 @@ export function AppNav() {
                 <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
               </Link>
             </DropdownMenuItem>
+            {isAdmin || isWorker ? (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel className="py-1 text-[10px] font-normal uppercase tracking-wide text-slate-400">
+                  Staff portals
+                </DropdownMenuLabel>
+              </>
+            ) : null}
             {isAdmin ? (
               <DropdownMenuItem asChild>
                 <Link href="/admin">
                   <Shield className="mr-2 h-4 w-4" /> Admin
+                </Link>
+              </DropdownMenuItem>
+            ) : null}
+            {isWorker ? (
+              <DropdownMenuItem asChild>
+                <Link href="/worker">
+                  <Briefcase className="mr-2 h-4 w-4" /> Worker
                 </Link>
               </DropdownMenuItem>
             ) : null}

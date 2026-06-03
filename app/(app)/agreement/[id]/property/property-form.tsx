@@ -1,11 +1,11 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useUnsavedChangesWarning } from "@/hooks/use-unsaved-changes-warning";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Plus, Sofa, Trash2 } from "lucide-react";
+import { Plus, Sofa, Trash2, Minus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,12 +21,16 @@ import { NavButtons } from "@/components/wizard/nav-buttons";
 import { persistStep } from "@/components/wizard/persist";
 import { propertySchema, type PropertyData } from "@/lib/schemas";
 import {
-  AMENITIES,
   BHK_OPTIONS,
+  COMMERCIAL_FURNISHING_OPTIONS,
   FURNISHING_OPTIONS,
   INDIAN_STATES,
   PROPERTY_TYPES,
 } from "@/lib/constants";
+import {
+  amenitiesForPropertyCategory,
+  getPropertyTypeCategory,
+} from "@/lib/property-type-category";
 
 export function PropertyForm({
   agreementId,
@@ -49,28 +53,33 @@ export function PropertyForm({
     formState: { errors, isDirty },
     watch,
     setValue,
+    getValues,
   } = useForm<PropertyData>({
     resolver: zodResolver(propertySchema),
-    defaultValues:
-      initial ??
-      ({
-        type: "",
-        bhk: "",
-        bathrooms: 1,
-        furnishing: "",
-        flatNumber: "",
-        floorNumber: "",
-        buildingName: "",
-        addressLine1: "",
-        addressLine2: "",
-        locality: "",
-        city: "",
-        state: "",
-        pincode: "",
-        carpetArea: 0,
-        amenities: [],
-        furnitureSchedule: [],
-      } as PropertyData),
+    defaultValues: initial
+      ? {
+          ...initial,
+          customAmenities: initial.customAmenities ?? [],
+        }
+      : ({
+          type: "",
+          bhk: "",
+          bathrooms: 1,
+          furnishing: "",
+          flatNumber: "",
+          floorNumber: "",
+          buildingName: "",
+          addressLine1: "",
+          addressLine2: "",
+          locality: "",
+          city: "",
+          state: "",
+          pincode: "",
+          carpetArea: 0,
+          amenities: [],
+          customAmenities: [],
+          furnitureSchedule: [],
+        } as PropertyData),
   });
 
   useUnsavedChangesWarning(isDirty);
@@ -79,12 +88,67 @@ export function PropertyForm({
     fields: furnitureFields,
     append: appendFurniture,
     remove: removeFurniture,
+    replace: replaceFurnitureSchedule,
   } = useFieldArray({
     control,
     name: "furnitureSchedule",
   });
 
+  const {
+    fields: customAmenityFields,
+    append: appendCustomAmenity,
+    remove: removeCustomAmenity,
+  } = useFieldArray({
+    control,
+    name: "customAmenities",
+  });
+
   const amenities = watch("amenities") || [];
+  const propertyType = watch("type");
+  const category = useMemo(
+    () => getPropertyTypeCategory(propertyType),
+    [propertyType],
+  );
+  const isResidential =
+    category === "residential" || category === "unknown";
+  const isCommercial = category === "commercial";
+  const isWarehouse = category === "warehouse";
+  const isLandBuilding = category === "land_building";
+
+  useEffect(() => {
+    if (!isWarehouse) return;
+    if (furnitureFields.length === 0) return;
+    replaceFurnitureSchedule([]);
+  }, [isWarehouse, furnitureFields.length, replaceFurnitureSchedule]);
+
+  const amenityChoices = useMemo(
+    () => [...amenitiesForPropertyCategory(category)],
+    [category],
+  );
+
+  const furnishingChoices = useMemo(() => {
+    if (isCommercial) return [...COMMERCIAL_FURNISHING_OPTIONS];
+    if (isWarehouse || isLandBuilding) {
+      return ["Not applicable", ...FURNISHING_OPTIONS];
+    }
+    return [...FURNISHING_OPTIONS];
+  }, [isCommercial, isWarehouse, isLandBuilding]);
+
+  useEffect(() => {
+    if (!isResidential) {
+      setValue("bhk", "", { shouldValidate: false, shouldDirty: false });
+    }
+  }, [isResidential, setValue]);
+
+  /** Amenities are checklist-only; drop anything not allowed for this property type. */
+  useEffect(() => {
+    const allowed = new Set(amenitiesForPropertyCategory(category));
+    const cur = getValues("amenities") ?? [];
+    const next = cur.filter((a) => allowed.has(a));
+    if (next.length !== cur.length) {
+      setValue("amenities", next, { shouldValidate: false, shouldDirty: false });
+    }
+  }, [category, getValues, setValue]);
 
   async function onSubmit(data: PropertyData) {
     setSubmitting(true);
@@ -95,6 +159,17 @@ export function PropertyForm({
       toast.success("Property details saved");
       router.push(`/agreement/${agreementId}/owner`);
     }
+  }
+
+  function bumpCustomAmenityUnits(index: number, delta: number) {
+    const path = `customAmenities.${index}.units` as const;
+    const raw = getValues(path);
+    const cur =
+      typeof raw === "number" && Number.isFinite(raw)
+        ? Math.trunc(raw)
+        : Number(raw) || 1;
+    const next = Math.min(999, Math.max(1, cur + delta));
+    setValue(path, next, { shouldDirty: true, shouldValidate: true });
   }
 
   function setAmenityChecked(value: string, checked: boolean) {
@@ -119,7 +194,7 @@ export function PropertyForm({
             render={({ field }) => (
               <Select onValueChange={field.onChange} value={field.value}>
                 <SelectTrigger id="type">
-                  <SelectValue placeholder="Select type" />
+                  <SelectValue placeholder="Select property" />
                 </SelectTrigger>
                 <SelectContent>
                   {PROPERTY_TYPES.map((t) => (
@@ -133,47 +208,76 @@ export function PropertyForm({
           />
         </Field>
 
-        <Field label="Bedrooms (BHK)" htmlFor="bhk" required error={errors.bhk}>
-          <Controller
-            name="bhk"
-            control={control}
-            render={({ field }) => (
-              <Select onValueChange={field.onChange} value={field.value}>
-                <SelectTrigger id="bhk">
-                  <SelectValue placeholder="BHK" />
-                </SelectTrigger>
-                <SelectContent>
-                  {BHK_OPTIONS.map((t) => (
-                    <SelectItem key={t} value={t}>
-                      {t}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          />
-        </Field>
+        {isResidential ? (
+          <Field
+            label="Bedrooms (BHK)"
+            htmlFor="bhk"
+            required
+            error={errors.bhk}
+          >
+            <Controller
+              name="bhk"
+              control={control}
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger id="bhk">
+                    <SelectValue placeholder="BHK" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {BHK_OPTIONS.map((t) => (
+                      <SelectItem key={t} value={t}>
+                        {t}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </Field>
+        ) : null}
 
         <Field
-          label="Number of bathrooms"
+          label={
+            isResidential
+              ? "Number of bathrooms"
+              : isWarehouse || isLandBuilding
+                ? "Toilets / restrooms (0 if none)"
+                : "Restrooms / WCs (in demised premises)"
+          }
           htmlFor="bathrooms"
-          required
+          required={
+            isResidential || isCommercial || isWarehouse || isLandBuilding
+          }
           error={errors.bathrooms}
         >
           <Input
             id="bathrooms"
             type="number"
-            min={1}
-            max={20}
-            placeholder="e.g. 2"
-            {...register("bathrooms")}
+            min={isResidential ? 1 : 0}
+            max={99}
+            placeholder={
+              isWarehouse || isLandBuilding
+                ? "e.g. 0"
+                : isCommercial
+                  ? "e.g. 1"
+                  : "e.g. 2"
+            }
+            {...register("bathrooms", {
+              valueAsNumber: true,
+            })}
           />
         </Field>
 
         <Field
-          label="Furnishing"
+          label={
+            isCommercial
+              ? "Fit-out / furnishing"
+              : isWarehouse || isLandBuilding
+                ? "Furnishing (if applicable)"
+                : "Furnishing"
+          }
           htmlFor="furnishing"
-          required
+          required={isResidential || isCommercial}
           error={errors.furnishing}
         >
           <Controller
@@ -182,10 +286,16 @@ export function PropertyForm({
             render={({ field }) => (
               <Select onValueChange={field.onChange} value={field.value}>
                 <SelectTrigger id="furnishing">
-                  <SelectValue placeholder="Furnishing status" />
+                  <SelectValue
+                    placeholder={
+                      isWarehouse || isLandBuilding
+                        ? "Optional — default Not applicable"
+                        : "Furnishing status"
+                    }
+                  />
                 </SelectTrigger>
                 <SelectContent>
-                  {FURNISHING_OPTIONS.map((t) => (
+                  {furnishingChoices.map((t) => (
                     <SelectItem key={t} value={t}>
                       {t}
                     </SelectItem>
@@ -197,7 +307,13 @@ export function PropertyForm({
         </Field>
 
         <Field
-          label="Carpet area (sq. ft.)"
+          label={
+            isWarehouse || isLandBuilding
+              ? "Built-up / warehouse or structure area (sq. ft.)"
+              : isCommercial
+                ? "Built-up / carpet area (sq. ft.)"
+                : "Carpet area (sq. ft.)"
+          }
           htmlFor="carpetArea"
           required
           error={errors.carpetArea}
@@ -212,24 +328,57 @@ export function PropertyForm({
       </div>
 
       <div className="grid gap-5 md:grid-cols-3">
-        <Field label="Flat / House no." htmlFor="flatNumber">
+        <Field
+          label={
+            isCommercial
+              ? "Shop / office / unit no."
+              : isWarehouse
+                ? "Bay / unit no. (optional)"
+                : isLandBuilding
+                  ? "Plot / survey ref. (optional)"
+                  : "Flat / house no."
+          }
+          htmlFor="flatNumber"
+        >
           <Input
             id="flatNumber"
-            placeholder="e.g. A-302"
+            placeholder={
+              isCommercial
+                ? "e.g. G-17, Wing B"
+                : isLandBuilding
+                  ? "Survey / CTS no."
+                  : "e.g. A-302"
+            }
             {...register("flatNumber")}
           />
         </Field>
-        <Field label="Floor" htmlFor="floorNumber">
+        <Field
+          label={isWarehouse ? "Bay / aisle (optional)" : "Floor"}
+          htmlFor="floorNumber"
+        >
           <Input
             id="floorNumber"
-            placeholder="e.g. 3rd"
+            placeholder={
+              isCommercial ? "e.g. Ground, 2nd" : "e.g. 3rd"
+            }
             {...register("floorNumber")}
           />
         </Field>
-        <Field label="Building name" htmlFor="buildingName">
+        <Field
+          label={
+            isCommercial
+              ? "Building / mall / complex name"
+              : isWarehouse || isLandBuilding
+                ? "Premises / estate name (optional)"
+                : "Building name"
+          }
+          htmlFor="buildingName"
+        >
           <Input
             id="buildingName"
-            placeholder="e.g. Lotus Heights"
+            placeholder={
+              isCommercial ? "e.g. Phoenix Mall" : "e.g. Lotus Heights"
+            }
             {...register("buildingName")}
           />
         </Field>
@@ -251,7 +400,11 @@ export function PropertyForm({
       <Field label="Address line 2 (optional)" htmlFor="addressLine2">
         <Input
           id="addressLine2"
-          placeholder="Landmark, area"
+          placeholder={
+            isLandBuilding
+              ? "Survey / Khasra details, gated layout"
+              : "Landmark, area"
+          }
           {...register("addressLine2")}
         />
       </Field>
@@ -313,15 +466,15 @@ export function PropertyForm({
       <div>
         <div className="text-sm font-medium text-slate-800">Amenities</div>
         <p className="mt-1 text-xs text-slate-500">
-          Optional — select all that apply. These show up in the inventory
-          section of the agreement.
+          Tick standard options below, or add your own extras with quantity.
+          Everything listed here appears in the agreement schedule.
         </p>
         <div
           className="mt-3 grid gap-2 sm:grid-cols-2 md:grid-cols-3"
           role="group"
           aria-label="Property amenities"
         >
-          {AMENITIES.map((a) => {
+          {amenityChoices.map((a) => {
             const id = `amenity-${a.replace(/[^a-zA-Z0-9]+/g, "-").toLowerCase()}`;
             const checked = amenities.includes(a);
             return (
@@ -345,77 +498,179 @@ export function PropertyForm({
             );
           })}
         </div>
-      </div>
 
-      <div className="rounded-xl border bg-slate-50 p-5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sofa className="h-5 w-5 text-brand-700" />
-            <h3 className="text-sm font-semibold text-slate-900">
-              Schedule I — Furniture &amp; appliances handed over
-            </h3>
-          </div>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => appendFurniture({ item: "", units: 1 })}
-          >
-            <Plus className="h-4 w-4" />
-            Add row
-          </Button>
-        </div>
-        <p className="mt-1 text-xs text-slate-500">
-          Optional — lists everything the Owner hands over to the Tenant on
-          move-in.
-        </p>
-
-        {furnitureFields.length > 0 && (
-          <div className="mt-4 space-y-3">
-            {furnitureFields.map((f, i) => (
-              <div
-                key={f.id}
-                className="grid items-end gap-3 rounded-lg border bg-white p-3 sm:grid-cols-[1fr_120px_auto]"
-              >
-                <Field
-                  label="Item"
-                  htmlFor={`furnitureSchedule.${i}.item`}
-                  required
-                  error={errors.furnitureSchedule?.[i]?.item}
-                >
-                  <Input
-                    id={`furnitureSchedule.${i}.item`}
-                    placeholder="e.g. Ceiling fan"
-                    {...register(`furnitureSchedule.${i}.item` as const)}
-                  />
-                </Field>
-                <Field
-                  label="Units"
-                  htmlFor={`furnitureSchedule.${i}.units`}
-                  required
-                  error={errors.furnitureSchedule?.[i]?.units}
-                >
-                  <Input
-                    id={`furnitureSchedule.${i}.units`}
-                    type="number"
-                    min={1}
-                    {...register(`furnitureSchedule.${i}.units` as const)}
-                  />
-                </Field>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => removeFurniture(i)}
-                  aria-label="Remove row"
-                >
-                  <Trash2 className="h-4 w-4 text-destructive" />
-                </Button>
+        <div className="mt-6 rounded-lg border border-dashed border-slate-200 bg-slate-50/90 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <div className="text-sm font-medium text-slate-800">
+                Additional amenities
               </div>
-            ))}
+              <p className="mt-0.5 text-xs text-slate-500">
+                Optional — name anything not in the list and how many (e.g.
+                bike racks, shelves).
+              </p>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                appendCustomAmenity({ item: "", units: 1 })
+              }
+            >
+              <Plus className="h-4 w-4" />
+              Add custom
+            </Button>
           </div>
-        )}
+
+          {customAmenityFields.length > 0 ? (
+            <div className="mt-4 space-y-3">
+              {customAmenityFields.map((row, i) => (
+                <div
+                  key={row.id}
+                  className="grid items-end gap-3 rounded-lg border bg-white p-3 sm:grid-cols-[1fr_auto_auto]"
+                >
+                  <Field
+                    label="Description"
+                    htmlFor={`customAmenities.${i}.item`}
+                    required
+                    error={errors.customAmenities?.[i]?.item}
+                  >
+                    <Input
+                      id={`customAmenities.${i}.item`}
+                      placeholder="e.g. Covered bike rack"
+                      {...register(`customAmenities.${i}.item` as const)}
+                    />
+                  </Field>
+                  <Field
+                    label="Count"
+                    htmlFor={`customAmenities.${i}.units`}
+                    required
+                    error={errors.customAmenities?.[i]?.units}
+                    className="sm:max-w-[11rem]"
+                  >
+                    <div className="flex items-center gap-1">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="size-9 shrink-0 rounded-none"
+                        onClick={() => bumpCustomAmenityUnits(i, -1)}
+                        aria-label="Decrease count"
+                      >
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                      <Input
+                        id={`customAmenities.${i}.units`}
+                        type="number"
+                        min={1}
+                        max={999}
+                        inputMode="numeric"
+                        className="text-center tabular-nums [-moz-appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                        {...register(`customAmenities.${i}.units` as const, {
+                          valueAsNumber: true,
+                        })}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="size-9 shrink-0 rounded-none"
+                        onClick={() => bumpCustomAmenityUnits(i, 1)}
+                        aria-label="Increase count"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </Field>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="justify-self-end sm:justify-self-auto"
+                    onClick={() => removeCustomAmenity(i)}
+                    aria-label="Remove row"
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          ) : null}
+        </div>
       </div>
+
+      {!isWarehouse ? (
+        <div className="rounded-xl border bg-slate-50 p-5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sofa className="h-5 w-5 text-brand-700" />
+              <h3 className="text-sm font-semibold text-slate-900">
+                Schedule I — Furniture &amp; appliances handed over
+              </h3>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => appendFurniture({ item: "", units: 1 })}
+            >
+              <Plus className="h-4 w-4" />
+              Add row
+            </Button>
+          </div>
+          <p className="mt-1 text-xs text-slate-500">
+            Optional — lists everything the Owner hands over to the Tenant on
+            move-in.
+          </p>
+
+          {furnitureFields.length > 0 && (
+            <div className="mt-4 space-y-3">
+              {furnitureFields.map((f, i) => (
+                <div
+                  key={f.id}
+                  className="grid items-end gap-3 rounded-lg border bg-white p-3 sm:grid-cols-[1fr_120px_auto]"
+                >
+                  <Field
+                    label="Item"
+                    htmlFor={`furnitureSchedule.${i}.item`}
+                    required
+                    error={errors.furnitureSchedule?.[i]?.item}
+                  >
+                    <Input
+                      id={`furnitureSchedule.${i}.item`}
+                      placeholder="e.g. Ceiling fan"
+                      {...register(`furnitureSchedule.${i}.item` as const)}
+                    />
+                  </Field>
+                  <Field
+                    label="Units"
+                    htmlFor={`furnitureSchedule.${i}.units`}
+                    required
+                    error={errors.furnitureSchedule?.[i]?.units}
+                  >
+                    <Input
+                      id={`furnitureSchedule.${i}.units`}
+                      type="number"
+                      min={1}
+                      {...register(`furnitureSchedule.${i}.units` as const)}
+                    />
+                  </Field>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeFurniture(i)}
+                    aria-label="Remove row"
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : null}
 
       <NavButtons
         backHref={stepBackHref ?? `/agreement/${agreementId}/draft`}

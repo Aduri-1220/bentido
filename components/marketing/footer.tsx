@@ -58,7 +58,16 @@ export function Footer() {
               href="/sign-in?callbackUrl=/admin"
               className="hover:text-brand-700 hover:underline"
             >
-              Staff sign in
+              Admin sign in
+            </Link>
+            <span className="hidden sm:inline" aria-hidden>
+              ·
+            </span>
+            <Link
+              href="/sign-in?callbackUrl=/worker"
+              className="hover:text-brand-700 hover:underline"
+            >
+              Worker sign in
             </Link>
             <span className="hidden sm:inline" aria-hidden>
               ·

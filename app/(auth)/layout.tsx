@@ -37,7 +37,7 @@ export default function AuthLayout({
 
           <div className="mt-10 grid grid-cols-2 gap-4">
             {[
-              { icon: ShieldCheck, label: "Lawyer-vetted" },
+              { icon: ShieldCheck, label: "Structured templates" },
               { icon: Stamp, label: "State e-stamping" },
               { icon: Fingerprint, label: "Aadhaar e-sign" },
               { icon: Truck, label: "Doorstep delivery" },

@@ -37,10 +37,25 @@ export async function POST(req: Request) {
       );
     }
 
+    const phoneTaken = await prisma.user.findUnique({
+      where: { phone },
+    });
+    if (phoneTaken) {
+      return NextResponse.json(
+        {
+          error: {
+            phone: ["An account with this mobile number already exists"],
+          },
+        },
+        { status: 409 },
+      );
+    }
+
     const passwordHash = await bcrypt.hash(password, 10);
 
     const user = await prisma.user.create({
       data: {
+        id: phone,
         name,
         email,
         phone,

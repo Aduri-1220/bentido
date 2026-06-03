@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Lora } from "next/font/google";
+import "@/lib/env"; // Validate environment at startup
 import "./globals.css";
 import { Providers } from "@/components/providers";
 
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
     template: "%s · WeBroker",
   },
   description:
-    "Neutral mediation for landlords and tenants: verified KYC, lawyer-vetted drafts, e-Stamp and Sub-Registrar filing — without the usual broker runaround.",
+    "Neutral mediation for landlords and tenants: verified KYC, structured rental drafts, e-stamp and e-sign — without the usual broker runaround.",
   keywords: [
     "rental agreement",
     "lease agreement",

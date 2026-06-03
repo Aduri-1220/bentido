@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation";
-import { FileText, ScrollText } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, Briefcase, FileText, ScrollText, Shield } from "lucide-react";
 import { isAdminEmail } from "@/lib/admin";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
+import { isWorkerEmail } from "@/lib/worker";
 import { formatDate } from "@/lib/utils";
 import { NewAgreementButton } from "@/components/app/new-agreement-button";
 import { DashboardAgreementCard } from "@/components/app/dashboard-agreement-card";
@@ -11,9 +13,15 @@ export default async function DashboardPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/sign-in");
 
-  if (!isAdminEmail(user.email)) {
-    const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
-    if (!dbUser?.role || !dbUser.state) redirect("/onboarding");
+  const dbProfile = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { email: true, role: true, state: true },
+  });
+  const emailForStaff = dbProfile?.email ?? user.email;
+  const showAdminPortal = isAdminEmail(emailForStaff);
+  const showWorkerPortal = isWorkerEmail(emailForStaff);
+  if (!isAdminEmail(emailForStaff) && !isWorkerEmail(emailForStaff)) {
+    if (!dbProfile?.role || !dbProfile?.state) redirect("/onboarding");
   }
 
   const agreements = await prisma.agreement.findMany({
@@ -41,6 +49,13 @@ export default async function DashboardPage() {
         </div>
         <NewAgreementButton />
       </div>
+
+      {showAdminPortal || showWorkerPortal ? (
+        <DashboardStaffAccountLinks
+          showAdmin={showAdminPortal}
+          showWorker={showWorkerPortal}
+        />
+      ) : null}
 
       <div className="mt-6 grid gap-4 md:grid-cols-3">
         <StatCard
@@ -100,6 +115,71 @@ export default async function DashboardPage() {
         )}
       </div>
     </div>
+  );
+}
+
+function DashboardStaffAccountLinks({
+  showAdmin,
+  showWorker,
+}: {
+  showAdmin: boolean;
+  showWorker: boolean;
+}) {
+  return (
+    <section
+      className="mt-8 rounded-xl border border-brand-200 bg-brand-50/70 p-5 shadow-sm"
+      aria-labelledby="staff-account-heading"
+    >
+      <h2
+        id="staff-account-heading"
+        className="text-xs font-semibold uppercase tracking-wide text-brand-800"
+      >
+        Account · Staff portal
+      </h2>
+      <p className="mt-1 text-sm text-slate-600">
+        Open the same dashboards as the top navigation when your email is on the
+        admin or worker allowlist.
+      </p>
+      <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+        {showAdmin ? (
+          <PortalLink
+            href="/admin"
+            label="Admin dashboard"
+            icon={Shield}
+          />
+        ) : null}
+        {showWorker ? (
+          <PortalLink
+            href="/worker"
+            label="Worker dashboard"
+            icon={Briefcase}
+          />
+        ) : null}
+      </div>
+    </section>
+  );
+}
+
+function PortalLink({
+  href,
+  label,
+  icon: Icon,
+}: {
+  href: string;
+  label: string;
+  icon: typeof Shield;
+}) {
+  return (
+    <Link
+      href={href}
+      className="inline-flex items-center justify-between gap-4 rounded-lg border border-brand-200/90 bg-white px-4 py-3 text-sm font-medium text-slate-900 shadow-sm transition hover:border-brand-400 hover:bg-brand-50/90 sm:min-w-[14rem]"
+    >
+      <span className="inline-flex items-center gap-2">
+        <Icon className="h-4 w-4 text-brand-700" aria-hidden />
+        {label}
+      </span>
+      <ArrowRight className="h-4 w-4 shrink-0 text-brand-600" aria-hidden />
+    </Link>
   );
 }
 

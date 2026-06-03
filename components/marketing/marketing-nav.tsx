@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { FileSignature, Menu, Shield, X } from "lucide-react";
+import { Briefcase, FileSignature, Menu, Shield, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -51,11 +51,21 @@ export function MarketingNav() {
           <Button asChild variant="ghost" className="text-slate-600">
             <Link
               href="/sign-in?callbackUrl=/admin"
-              title="Authorized staff — sign in, then open the admin dashboard"
+              title="Admin allowlist email — opens admin dashboard after login"
               className="inline-flex items-center gap-1.5"
             >
               <Shield className="h-4 w-4" />
-              Staff
+              Admin
+            </Link>
+          </Button>
+          <Button asChild variant="ghost" className="text-slate-600">
+            <Link
+              href="/sign-in?callbackUrl=/worker"
+              title="Worker allowlist email — opens worker dashboard after login"
+              className="inline-flex items-center gap-1.5"
+            >
+              <Briefcase className="h-4 w-4" />
+              Worker
             </Link>
           </Button>
           <Button asChild variant="brand">
@@ -100,7 +110,15 @@ export function MarketingNav() {
             className="mt-2 inline-flex items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-brand-800"
           >
             <Shield className="h-4 w-4" />
-            Staff sign in
+            Admin sign in
+          </Link>
+          <Link
+            href="/sign-in?callbackUrl=/worker"
+            onClick={() => setOpen(false)}
+            className="inline-flex items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-brand-800"
+          >
+            <Briefcase className="h-4 w-4" />
+            Worker sign in
           </Link>
         </div>
       </div>

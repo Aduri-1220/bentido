@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useUnsavedChangesWarning } from "@/hooks/use-unsaved-changes-warning";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,6 +18,10 @@ import { NavButtons } from "@/components/wizard/nav-buttons";
 import { persistStep } from "@/components/wizard/persist";
 import { ownerSchema, type OwnerData, normalizePanInput } from "@/lib/schemas";
 import { INDIAN_STATES } from "@/lib/constants";
+import {
+  AadhaarVerifyWidget,
+  type KycStatus,
+} from "@/components/wizard/aadhaar-verify-widget";
 
 interface PartyFormProps {
   agreementId: string;
@@ -36,12 +40,18 @@ export function PartyForm({
 }: PartyFormProps) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
+  const [kycStatus, setKycStatus] = useState<KycStatus>("PENDING");
+  const [kycMasked, setKycMasked] = useState<string>("");
+
+  const party = kind === "owner" ? "OWNER" : "TENANT";
 
   const {
     register,
     handleSubmit,
     control,
     reset,
+    watch,
+    setValue,
     formState: { errors, isDirty },
   } = useForm<OwnerData>({
     resolver: zodResolver(ownerSchema),
@@ -63,6 +73,26 @@ export function PartyForm({
   });
 
   useUnsavedChangesWarning(isDirty);
+
+  // Load existing KYC status on mount
+  useEffect(() => {
+    fetch(`/api/agreements/${agreementId}/kyc`)
+      .then((r) => r.json())
+      .then(({ kyc }) => {
+        const row = (
+          kyc as { party: string; status: string; maskedAadhaar?: string }[]
+        ).find((r) => r.party === party);
+        if (row) {
+          setKycStatus(row.status as KycStatus);
+          if (row.maskedAadhaar) setKycMasked(row.maskedAadhaar);
+        }
+      })
+      .catch(() => {});
+  }, [agreementId, party]);
+
+  const watchedName = watch("fullName");
+  const watchedEmail = watch("email");
+  const watchedPhone = watch("phone");
 
   async function onSubmit(data: OwnerData) {
     setSubmitting(true);
@@ -132,26 +162,34 @@ export function PartyForm({
             {...register("occupation")}
           />
         </Field>
+
+        {/* Aadhaar section — last 4 digits + inline KYC verification */}
         <Field
           label="Aadhaar (last 4 digits)"
           htmlFor="aadhaarLast4"
           required
           error={errors.aadhaarLast4}
-          hint="We never store your full Aadhaar number."
+          hint={
+            kycStatus === "VERIFIED"
+              ? undefined
+              : "Enter last 4 digits. Use the button below to verify via Aadhaar OTP."
+          }
         >
           <Input
             id="aadhaarLast4"
             inputMode="numeric"
             maxLength={4}
             placeholder="XXXX"
+            readOnly={kycStatus === "VERIFIED"}
             {...register("aadhaarLast4")}
           />
         </Field>
+
         <Field
           label="PAN"
           htmlFor="pan"
           error={errors.pan}
-          hint="Optional. 10 characters: five letters, four digits, one letter (stored in capitals)."
+          hint="Optional. 10 characters: five letters, four digits, one letter."
         >
           <Input
             id="pan"
@@ -183,6 +221,33 @@ export function PartyForm({
             {...register("email")}
           />
         </Field>
+      </div>
+
+      {/* Aadhaar KYC verification widget */}
+      <div className="rounded-xl border bg-slate-50 p-4">
+        <p className="mb-3 text-sm font-medium text-slate-800">
+          Aadhaar Identity Verification
+        </p>
+        <AadhaarVerifyWidget
+          agreementId={agreementId}
+          party={party}
+          customerName={watchedName}
+          customerEmail={watchedEmail}
+          customerMobile={watchedPhone}
+          initialStatus={kycStatus}
+          initialMaskedAadhaar={kycMasked}
+          onVerified={(masked, last4) => {
+            setKycStatus("VERIFIED");
+            setKycMasked(masked);
+            setValue("aadhaarLast4", last4, { shouldDirty: true });
+          }}
+        />
+        {kycStatus !== "VERIFIED" && (
+          <p className="mt-2 text-xs text-slate-500">
+            KYC verification is recommended for Aadhaar eSign add-on. You may
+            skip it and proceed.
+          </p>
+        )}
       </div>
 
       <Field

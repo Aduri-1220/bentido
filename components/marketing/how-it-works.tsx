@@ -13,7 +13,7 @@ const steps = [
     icon: FileSearch,
     title: "Review your draft",
     description:
-      "Preview the lawyer-vetted agreement on one page. Edit any section inline.",
+      "Preview a structured rental agreement on one page. Edit any section inline.",
   },
   {
     icon: CreditCard,

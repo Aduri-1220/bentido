@@ -202,7 +202,7 @@ export default function SignUpPage() {
             Terms
           </Link>{" "}
           and{" "}
-          <Link href="#" className="underline">
+          <Link href="/privacy" className="underline">
             Privacy Policy
           </Link>
           .

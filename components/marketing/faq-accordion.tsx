@@ -12,8 +12,8 @@ const faqs = [
     a: "Yes. Agreements drafted, e-stamped and e-signed via Aadhaar OTP are legally valid and enforceable under the IT Act, 2000 and the relevant state stamp acts.",
   },
   {
-    q: "Do I need to visit a sub-registrar office?",
-    a: "For leases of 11 months or less, registration is not mandatory in most states. For longer durations, we can guide you through registration in select cities.",
+    q: "Do I need to visit a government office?",
+    a: "For many 11-month leases, people complete everything online. Longer terms or specific cases may need extra steps depending on state rules — we note that in the flow when it applies to you.",
   },
   {
     q: "How long does the whole process take?",

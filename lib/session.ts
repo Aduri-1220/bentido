@@ -4,6 +4,7 @@ import type { Session } from "next-auth";
 import { isAdminEmail } from "./admin";
 import { authOptions } from "./auth";
 import { prisma } from "./db";
+import { isWorkerEmail } from "./worker";
 
 /** Session user guaranteed to include `id` when non-null (required for Prisma `userId` filters). */
 export async function getCurrentUser(): Promise<
@@ -36,5 +37,18 @@ export async function requireAdmin() {
   const user = await getCurrentUser();
   if (!user) redirect("/sign-in");
   if (!isAdminEmail(user.email)) redirect("/dashboard");
+  return user;
+}
+
+export async function requireWorker() {
+  const user = await getCurrentUser();
+  if (!user) redirect("/sign-in");
+
+  /** Allowlist compares canonical email from DB (session email can lag or omit). */
+  const row = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { email: true },
+  });
+  if (!row?.email || !isWorkerEmail(row.email)) redirect("/dashboard");
   return user;
 }

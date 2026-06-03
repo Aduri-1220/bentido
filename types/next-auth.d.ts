@@ -7,6 +7,7 @@ declare module "next-auth" {
       role?: string | null;
       state?: string | null;
       isAdmin?: boolean;
+      isWorker?: boolean;
     } & DefaultSession["user"];
   }
 }
@@ -17,5 +18,6 @@ declare module "next-auth/jwt" {
     role?: string | null;
     state?: string | null;
     isAdmin?: boolean;
+    isWorker?: boolean;
   }
 }

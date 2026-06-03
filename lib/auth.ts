@@ -5,6 +5,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 import { isAdminEmail } from "./admin";
 import { prisma } from "./db";
+import { isWorkerEmail } from "./worker";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as NextAuthOptions["adapter"],
@@ -87,24 +88,61 @@ export const authOptions: NextAuthOptions = {
         token.id = u.id;
         if (u.email) token.email = u.email;
       }
-      if (token.email) {
-        const dbUser = await prisma.user.findUnique({
-          where: { email: token.email as string },
-          select: { id: true, role: true, state: true, email: true },
+
+      /** Match DB row even when OAuth email casing differs from stored email. */
+      let dbUser = null as {
+        id: string;
+        role: string | null;
+        state: string | null;
+        email: string;
+      } | null;
+
+      const rawEmail =
+        typeof token.email === "string" ? token.email.trim() : "";
+      if (rawEmail) {
+        dbUser = await prisma.user.findFirst({
+          where: {
+            email: { equals: rawEmail, mode: "insensitive" },
+          },
+          select: {
+            id: true,
+            role: true,
+            state: true,
+            email: true,
+          },
         });
-        if (dbUser) {
-          token.id = dbUser.id;
-          token.role = dbUser.role;
-          token.state = dbUser.state;
-          token.isAdmin = isAdminEmail(dbUser.email);
-        } else {
-          token.isAdmin = false;
-        }
+      }
+
+      if (!dbUser && typeof token.id === "string") {
+        dbUser = await prisma.user.findUnique({
+          where: { id: token.id },
+          select: {
+            id: true,
+            role: true,
+            state: true,
+            email: true,
+          },
+        });
+        if (dbUser?.email) token.email = dbUser.email;
+      }
+
+      if (dbUser) {
+        token.id = dbUser.id;
+        token.role = dbUser.role;
+        token.state = dbUser.state;
+        token.isAdmin = isAdminEmail(dbUser.email);
+        token.isWorker = isWorkerEmail(dbUser.email);
+      } else {
+        token.isAdmin = false;
+        token.isWorker = false;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
+        if (typeof token.email === "string" && token.email.length > 0) {
+          session.user.email = token.email;
+        }
         (session.user as { id?: string }).id = token.id as string;
         (session.user as { role?: string | null }).role =
           (token.role as string | null) ?? null;
@@ -112,6 +150,8 @@ export const authOptions: NextAuthOptions = {
           (token.state as string | null) ?? null;
         (session.user as { isAdmin?: boolean }).isAdmin =
           token.isAdmin === true;
+        (session.user as { isWorker?: boolean }).isWorker =
+          token.isWorker === true;
       }
       return session;
     },

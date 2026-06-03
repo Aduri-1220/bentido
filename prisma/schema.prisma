@@ -50,18 +50,20 @@ model VerificationToken {
 // -------- Application models --------
 
 model User {
+  /// Email/password sign-up sets `id` to the same value as `phone`. OAuth keeps a generated CUID unless you later align data manually.
   id            String      @id @default(cuid())
   email         String      @unique
   emailVerified DateTime?
   name          String?
-  /// 10-digit Indian mobile (no country code), collected at email/password sign-up when provided.
-  phone         String?
+  /// 10-digit Indian mobile (no country code). Required at email/password sign-up; @unique for lookup.
+  phone         String?   @unique
   image         String?
   passwordHash  String?
   role          String? // "OWNER" | "TENANT" | "BROKER"
   state         String? // Indian state slug, e.g. "karnataka"
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
+  deletedAt     DateTime? // Soft delete timestamp
 
   accounts            Account[]
   sessions            Session[]
@@ -101,11 +103,17 @@ model Agreement {
   sourceDraftSkipped      Boolean  @default(false)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  deletedAt      DateTime? // Soft delete timestamp
 
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  addOns    AddOn[]
-  delivery  Delivery?
-  payment   Payment?
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  addOns           AddOn[]
+  delivery         Delivery?
+  payment          Payment?
+  kycVerifications KycVerification[]
+  eSignRequests    ESignRequest[]
+
+  @@index([userId])
+  @@index([status])
 }
 
 model AddOn {
@@ -115,6 +123,8 @@ model AddOn {
   qty         Int    @default(1)
   unitPrice   Int // in rupees
   agreement   Agreement @relation(fields: [agreementId], references: [id], onDelete: Cascade)
+
+  @@index([agreementId])
 }
 
 model Delivery {
@@ -146,6 +156,7 @@ model Payment {
   method      String?
   mockTxnId   String?
   createdAt   DateTime @default(now())
+  deletedAt   DateTime? // Soft delete timestamp
   agreement   Agreement @relation(fields: [agreementId], references: [id], onDelete: Cascade)
 }
 
@@ -155,4 +166,53 @@ model PaymentWebhookEvent {
   provider  String
   eventId   String   @unique
   createdAt DateTime @default(now())
+}
+
+/// Aadhaar OTP KYC verification record per party (OWNER | TENANT) per agreement.
+/// Full Aadhaar is never stored — only last 4 digits returned by Digio after verification.
+model KycVerification {
+  id            String    @id @default(cuid())
+  agreementId   String
+  /// "OWNER" | "TENANT"
+  party         String
+  /// Digio KYC request id (KID...) — used to poll status and in webhook.
+  digioKycId    String?   @unique
+  /// PENDING | INITIATED | VERIFIED | FAILED
+  status        String    @default("PENDING")
+  /// Name as returned by Digio after successful KYC.
+  verifiedName  String?
+  /// Masked Aadhaar XXXX XXXX 1234 from Digio response.
+  maskedAadhaar String?
+  verifiedAt    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  agreement Agreement @relation(fields: [agreementId], references: [id], onDelete: Cascade)
+
+  @@unique([agreementId, party])
+  @@index([agreementId])
+}
+
+/// Aadhaar eSign request — one row per signing party per agreement.
+model ESignRequest {
+  id             String    @id @default(cuid())
+  agreementId    String
+  /// "OWNER" | "TENANT" | "WITNESS_1" | "WITNESS_2"
+  party          String
+  /// Digio document id (DID...) — same for all parties in one document.
+  digioDocId     String?
+  /// Per-signer access token for embedding the Digio signing iframe.
+  accessToken    String?
+  /// PENDING | INITIATED | SIGNED | FAILED
+  status         String    @default("PENDING")
+  /// Signer's email (identifier used with Digio).
+  signerEmail    String?
+  signedAt       DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  agreement Agreement @relation(fields: [agreementId], references: [id], onDelete: Cascade)
+
+  @@unique([agreementId, party])
+  @@index([agreementId])
 }

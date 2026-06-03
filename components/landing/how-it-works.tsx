@@ -6,17 +6,22 @@ const STEPS = [
   {
     n: "01",
     title: "Onboard",
-    body: "You and the other party complete Aadhaar + PAN KYC in the app. We only unlock the draft once both sides are verified.",
+    body: "Owner and tenant complete Aadhaar + PAN KYC in the app. The draft stays locked until both sides are verified so you always deal with the real counterparty.",
   },
   {
     n: "02",
     title: "Align on terms",
-    body: "Agree on rent, deposit, tenure, notice and any add-ons in one shared draft. Edit together until you are both comfortable.",
+    body: "Rent, deposit, tenure, notice, and add-ons live in one shared draft. Edit together until you are both comfortable — no scattered screenshots.",
   },
   {
     n: "03",
-    title: "Sign, stamp, file",
-    body: "E-sign in minutes. We attach a valid e-Stamp and file with the Sub-Registrar — your agreement is on record. Security deposits are settled directly between you; we do not hold funds on the site.",
+    title: "Sign & e-stamp",
+    body: "E-sign in minutes, then complete state e-stamp duty online where supported. You get an executed PDF you can store, print, or share.",
+  },
+  {
+    n: "04",
+    title: "Receive & move in",
+    body: "Download instantly or add courier if you want hard copies. Security deposits settle directly between you; we focus on the paperwork.",
   },
 ];
 
@@ -35,7 +40,7 @@ export function HowItWorks() {
             className="mt-3 text-balance text-2xl font-semibold sm:text-4xl md:text-5xl"
             style={{ fontFamily: "var(--font-serif)" }}
           >
-            Three calm steps from “maybe” to “done.”
+            Four calm steps from “maybe” to “done.”
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-sm text-stone-400 sm:mt-4 sm:text-base">
             You always know what happens next — whether you are letting out a
@@ -43,7 +48,7 @@ export function HowItWorks() {
           </p>
         </div>
 
-        <div className="mt-10 grid gap-4 sm:mt-14 sm:gap-6 md:grid-cols-3">
+        <div className="mt-10 grid gap-4 sm:mt-14 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
           {STEPS.map((s, i) => (
             <motion.div
               key={s.n}

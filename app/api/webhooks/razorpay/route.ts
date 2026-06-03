@@ -13,7 +13,10 @@ import { prisma } from "@/lib/db";
 export async function POST(req: Request) {
   const secret = process.env.RAZORPAY_WEBHOOK_SECRET?.trim();
   if (!secret) {
-    return NextResponse.json({ error: "Not configured" }, { status: 503 });
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("RAZORPAY_WEBHOOK_SECRET must be set in production");
+    }
+    return NextResponse.json({ error: "Not configured (dev mode)" }, { status: 503 });
   }
 
   const raw = await req.text();

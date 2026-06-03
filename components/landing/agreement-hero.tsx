@@ -97,9 +97,9 @@ function HeroCopy() {
         className="mt-5 max-w-xl text-[15px] leading-relaxed text-slate-600 sm:text-base"
       >
         You get a clear Leave &amp; Licence with rent and deposit written in,
-        valid e-Stamp, and Sub-Registrar filing — without running between brokers
-        and offices.
-        We stay neutral: you focus on the home, we handle the paperwork.
+        valid e-stamp where your state supports it, and e-sign — without running
+        between brokers and print shops. We stay neutral: you focus on the home,
+        we handle the paperwork.
       </motion.p>
 
       <motion.div
@@ -135,7 +135,14 @@ function HeroCopy() {
           href="/sign-in?callbackUrl=/admin"
           className="font-medium text-brand-700 underline-offset-4 hover:text-brand-800 hover:underline"
         >
-          Sign in to admin
+          Admin
+        </Link>{" "}
+        ·{" "}
+        <Link
+          href="/sign-in?callbackUrl=/worker"
+          className="font-medium text-brand-700 underline-offset-4 hover:text-brand-800 hover:underline"
+        >
+          Worker
         </Link>
       </motion.p>
 
@@ -152,12 +159,12 @@ function HeroCopy() {
           <Check className="h-3.5 w-3.5 text-emerald-600" /> Valid e-Stamp
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <Check className="h-3.5 w-3.5 text-emerald-600" /> Lawyer-vetted
+          <Check className="h-3.5 w-3.5 text-emerald-600" /> Structured rental
           clauses
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <Check className="h-3.5 w-3.5 text-emerald-600" /> Sub-Registrar
-          filing
+          <Check className="h-3.5 w-3.5 text-emerald-600" /> Review before you
+          pay
         </span>
       </motion.div>
     </div>
@@ -187,18 +194,18 @@ const FLOW_PHASES: Array<{
   {
     label: "Align",
     headline: "Rent, deposit & notice in one draft",
-    body: "Edit a lawyer-vetted Leave & Licence together until both sides accept — no WhatsApp ping‑pong.",
+    body: "Align on a standard Leave & Licence together until both sides accept — no WhatsApp ping‑pong.",
     Icon: FileSignature,
     accent: "brand",
     chips: ["11‑month L&L", "Add‑ons ok"],
   },
   {
     label: "Close",
-    headline: "e‑Stamp, then on record",
-    body: "We e‑Stamp and file with the Sub‑Registrar so your agreement is documented where it counts. Rent and security deposit are between you and your counterparty — we do not hold funds on the site.",
+    headline: "E-stamp, sign, and wrap up",
+    body: "Complete e-stamp duty online where supported, then e-sign and download your executed agreement. Need hard copies? Add delivery — rent and deposit stay between you and your counterparty; we do not hold funds on the site.",
     Icon: Landmark,
     accent: "violet",
-    chips: ["Valid e‑Stamp", "Sub‑Registrar"],
+    chips: ["Valid e-stamp", "Executed PDF"],
   },
 ];
 
@@ -367,7 +374,7 @@ function RentalFlowShowcase() {
         </div>
 
         <p className="relative mt-7 border-t border-slate-100 pt-4 text-center text-[11px] text-slate-500">
-          Neutral mediation — one flow from KYC to a filed deed.
+          Neutral mediation — one flow from KYC to your executed agreement.
         </p>
       </div>
     </motion.div>

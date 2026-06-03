@@ -37,12 +37,13 @@ export const INDIAN_STATES: {
 export const STAMP_DENOMINATIONS = [100, 200, 300, 500, 1000];
 
 export const PROPERTY_TYPES = [
-  "Apartment / Flat",
-  "Independent House / Villa",
-  "Independent Floor / Builder Floor",
-  "PG / Hostel Room",
-  "Studio Apartment",
-  "Commercial Space",
+  "Shop",
+  "Office",
+  "Apartment/Flat",
+  "Godown",
+  "Independent House",
+  "Land+Building/Shed",
+  "Studio Apartments",
 ];
 
 export const BHK_OPTIONS = [
@@ -58,6 +59,24 @@ export const FURNISHING_OPTIONS = [
   "Unfurnished",
   "Semi-Furnished",
   "Fully-Furnished",
+];
+
+/** Shop / office — property form uses this when type is commercial. */
+export const COMMERCIAL_FURNISHING_OPTIONS = [
+  "Bare shell",
+  "Warm shell",
+  "Semi-Fitted",
+  "Fully fitted / plug & play",
+];
+
+export const COMMERCIAL_AMENITIES = [
+  "Fire safety / sprinklers",
+  "Loading / unloading bay",
+  "Three-phase power",
+  "DG / generator backup",
+  "CCTV",
+  "Elevator / goods lift",
+  "Water supply",
 ];
 
 export const AMENITIES = [

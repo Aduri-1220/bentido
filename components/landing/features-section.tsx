@@ -3,13 +3,13 @@
 import { motion } from "framer-motion";
 import {
   BadgeCheck,
-  Banknote,
   FileSignature,
   Gavel,
   FileText,
   Stamp,
+  type LucideIcon,
 } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { LandingAddOnsStrip } from "@/components/landing/add-ons-strip";
 
 const FEATURES: Array<{ icon: LucideIcon; title: string; body: string }> = [
   {
@@ -30,17 +30,12 @@ const FEATURES: Array<{ icon: LucideIcon; title: string; body: string }> = [
   {
     icon: Gavel,
     title: "Language you can rely on",
-    body: "Tenure, notice, indemnity and add-ons are reviewed by counsel so the agreement stands up if you ever need proof.",
+    body: "Tenure, notice, indemnity, and add-ons follow widely used residential patterns so the deed reads clearly if you ever need it as proof.",
   },
   {
     icon: Stamp,
-    title: "Official stamp and filing, done for you",
-    body: "We affix a valid state e-Stamp and file with the Sub-Registrar — you walk away with something you can actually use.",
-  },
-  {
-    icon: Banknote,
-    title: "One clear fee, no surprises",
-    body: "You see the mediation fee upfront. No hidden commissions or last-minute charges tacked onto your rent.",
+    title: "Stamp duty, surfaced clearly",
+    body: "We attach the correct state e-stamp where online purchase is supported and show duties as a transparent line item — no last-minute surprises.",
   },
 ];
 
@@ -48,7 +43,7 @@ export function FeaturesSection() {
   return (
     <section
       id="features"
-      className="relative overflow-hidden bg-gradient-to-b from-sky-50/50 via-white to-white py-16 sm:py-24"
+      className="relative overflow-hidden bg-gradient-to-b from-sky-50/50 via-white to-white py-14 sm:py-20"
     >
       <div className="container mx-auto max-w-6xl px-4">
         <div className="mx-auto max-w-2xl text-center">
@@ -59,16 +54,18 @@ export function FeaturesSection() {
             className="mt-3 text-balance text-2xl font-semibold text-stone-900 sm:text-4xl md:text-5xl"
             style={{ fontFamily: "var(--font-serif)" }}
           >
-            Clarity for you, not complexity for lawyers.
+            Clarity for you, not walls of fine print.
           </h2>
           <p className="mt-3 text-sm text-stone-600 sm:mt-4 sm:text-base">
-            We are not a property listing site. We are the neutral layer that
-            helps you draft, sign, e-Stamp and file — so your rental
-            story is straightforward from day one.
+            We are not a property listing site — we are the neutral layer for
+            drafting, signing, and e-stamp so your rental story stays
+            straightforward.
           </p>
         </div>
 
-        <div className="mt-10 grid gap-4 sm:mt-14 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+        <LandingAddOnsStrip />
+
+        <div className="mt-6 grid gap-4 sm:mt-8 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
           {FEATURES.map((f, i) => (
             <motion.div
               key={f.title}

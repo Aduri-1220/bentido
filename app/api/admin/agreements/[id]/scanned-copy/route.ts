@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { deliveryUsesExecutedCopyUpload } from "@/lib/delivery-executed-copy";
 import { getCurrentUser } from "@/lib/session";
-import { isAdminEmail } from "@/lib/admin";
+import { staffAgreementAccessForUserId } from "@/lib/staff-agreement-access";
 
 const MAX_BYTES = 15 * 1024 * 1024;
 
@@ -18,7 +18,7 @@ export async function GET(
   { params }: { params: { id: string } },
 ) {
   const user = await getCurrentUser();
-  if (!user || !isAdminEmail(user.email))
+  if (!user || !(await staffAgreementAccessForUserId(user.id)))
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const row = await prisma.delivery.findFirst({
@@ -54,7 +54,7 @@ export async function POST(
   { params }: { params: { id: string } },
 ) {
   const user = await getCurrentUser();
-  if (!user || !isAdminEmail(user.email))
+  if (!user || !(await staffAgreementAccessForUserId(user.id)))
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const delivery = await prisma.delivery.findUnique({

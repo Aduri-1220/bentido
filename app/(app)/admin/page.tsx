@@ -2,13 +2,28 @@ import Link from "next/link";
 import { ArrowRight, FileUp } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { formatDate } from "@/lib/utils";
+import { parsePhoneSearchQuery, digitsOnly } from "@/lib/phone";
+import { staffAgreementsMobileWhere } from "@/lib/staff-agreement-phone-filter";
 import { StatusBadge } from "@/components/app/status-badge";
 import { Badge } from "@/components/ui/badge";
+import { StaffAgreementsMobileFilter } from "@/components/staff/staff-agreements-mobile-filter";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminAgreementsPage() {
+export default async function AdminAgreementsPage({
+  searchParams,
+}: {
+  searchParams?: Record<string, string | string[] | undefined>;
+}) {
+  const rawPhone =
+    typeof searchParams?.phone === "string"
+      ? searchParams.phone
+      : searchParams?.phone?.[0];
+  const digitsQuery = parsePhoneSearchQuery(rawPhone);
+  const mobileWhere = staffAgreementsMobileWhere(digitsQuery);
+
   const agreements = await prisma.agreement.findMany({
+    where: mobileWhere,
     orderBy: { updatedAt: "desc" },
     take: 250,
     select: {
@@ -18,7 +33,9 @@ export default async function AdminAgreementsPage() {
       updatedAt: true,
       sourceDraftOriginalName: true,
       propertyJson: true,
-      user: { select: { email: true, name: true } },
+      user: {
+        select: { id: true, email: true, name: true, phone: true },
+      },
     },
   });
 
@@ -26,16 +43,31 @@ export default async function AdminAgreementsPage() {
     <div>
       <h2 className="text-lg font-semibold text-slate-900">
         Agreements ({agreements.length})
+        {digitsQuery ? (
+          <span className="text-sm font-normal text-slate-500">
+            {" "}
+            — mobile{" "}
+            {digitsQuery.length === 10 ? "exact" : "partial"} match
+          </span>
+        ) : null}
       </h2>
       <p className="mt-1 text-sm text-slate-600">
-        Showing up to 250 most recently updated.
+        Showing up to 250 most recently updated
+        {digitsQuery ? ` (${digitsQuery} · customer id or saved mobile)` : ""}.
       </p>
+
+      <StaffAgreementsMobileFilter
+        actionPath="/admin"
+        defaultDigits={digitsOnly(rawPhone)}
+      />
 
       <div className="mt-6 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="divide-y divide-slate-100">
           {agreements.length === 0 ? (
             <p className="p-8 text-center text-sm text-slate-600">
-              No agreements in the database yet.
+              {digitsQuery
+                ? "No agreements match this mobile filter."
+                : "No agreements in the database yet."}
             </p>
           ) : (
             agreements.map((a) => {
@@ -75,6 +107,20 @@ export default async function AdminAgreementsPage() {
                     <p className="truncate text-sm text-slate-600">
                       {a.user.name ? `${a.user.name} · ` : ""}
                       {a.user.email}
+                      {a.user.phone ? (
+                        <>
+                          {" "}
+                          ·{" "}
+                          <span className="font-mono text-slate-700">
+                            +91 {a.user.phone}
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          {" "}
+                          · <span className="text-slate-400">mobile n/a</span>
+                        </>
+                      )}
                     </p>
                   </div>
                   <div className="text-right text-xs text-slate-500 md:min-w-[9rem]">

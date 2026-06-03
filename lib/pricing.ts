@@ -60,7 +60,7 @@ export function computeTotal(input: AddOnsInput): PriceBreakdown {
     {
       label: "Base agreement drafting",
       amount: PRICING.base,
-      description: "Lawyer-vetted template",
+      description: "Structured rental template",
     },
     {
       label: "Stamp duty",

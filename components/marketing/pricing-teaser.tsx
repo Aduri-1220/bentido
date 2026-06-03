@@ -11,7 +11,7 @@ const tiers = [
     price: 199,
     description: "Perfect when both parties are tech-savvy.",
     features: [
-      "Lawyer-vetted draft",
+      "Structured rental draft",
       "PDF instantly via email",
       "Aadhaar e-sign add-on",
       "State-wise e-stamp",

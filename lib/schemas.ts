@@ -1,5 +1,9 @@
 import { z } from "zod";
 import { INDIAN_STATES, STAMP_DENOMINATIONS } from "./constants";
+import {
+  amenitiesForPropertyCategory,
+  getPropertyTypeCategory,
+} from "./property-type-category";
 
 const requiredString = (msg: string) => z.string().min(1, msg);
 
@@ -29,36 +33,211 @@ export function normalizePanInput(raw: unknown): string {
   }
 }
 
-export const propertySchema = z.object({
-  type: requiredString("Property type is required"),
-  bhk: requiredString("BHK configuration is required"),
-  bathrooms: z.coerce
-    .number()
-    .int()
-    .min(1, "At least 1 bathroom")
-    .max(20, "Too many bathrooms"),
-  furnishing: requiredString("Furnishing status is required"),
-  flatNumber: z.string().optional().default(""),
-  floorNumber: z.string().optional().default(""),
-  buildingName: z.string().optional().default(""),
-  addressLine1: requiredString("Address is required"),
-  addressLine2: z.string().optional().default(""),
-  locality: requiredString("Locality is required"),
-  city: requiredString("City is required"),
-  state: requiredString("State is required"),
-  pincode: z.string().regex(/^\d{6}$/, "Enter a valid 6-digit PIN code"),
-  carpetArea: z.coerce.number().min(1, "Area is required").max(100000),
-  amenities: z.array(z.string()).default([]),
-  furnitureSchedule: z
-    .array(
-      z.object({
-        item: requiredString("Item required"),
-        units: z.coerce.number().int().min(1, "Units"),
-      }),
-    )
-    .default([]),
-});
-export type PropertyData = z.infer<typeof propertySchema>;
+export const propertySchema = z
+  .object({
+    type: requiredString("Property type is required"),
+    bhk: z.string().optional().default(""),
+    bathrooms: z.preprocess(emptyNumberToUndefined, z.number().int().optional()),
+    furnishing: z.string().optional().default(""),
+    flatNumber: z.string().optional().default(""),
+    floorNumber: z.string().optional().default(""),
+    buildingName: z.string().optional().default(""),
+    addressLine1: requiredString("Address is required"),
+    addressLine2: z.string().optional().default(""),
+    locality: requiredString("Locality is required"),
+    city: requiredString("City is required"),
+    state: requiredString("State is required"),
+    pincode: z.string().regex(/^\d{6}$/, "Enter a valid 6-digit PIN code"),
+    carpetArea: z.preprocess(
+      emptyNumberToUndefined,
+      z
+        .number({
+          invalid_type_error: "Area is required",
+        })
+        .min(1, "Area is required")
+        .max(100000),
+    ),
+    amenities: z.array(z.string()).default([]),
+    /** User-entered extras with quantity (not limited to predefined checklist). */
+    customAmenities: z
+      .array(
+        z.object({
+          item: z.preprocess(
+            (val) => (typeof val === "string" ? val.trim() : val),
+            requiredString("Describe the amenity"),
+          ),
+          units: z.coerce.number().int().min(1).max(999),
+        }),
+      )
+      .default([]),
+    furnitureSchedule: z
+      .array(
+        z.object({
+          item: requiredString("Item required"),
+          units: z.coerce.number().int().min(1, "Units"),
+        }),
+      )
+      .default([]),
+  })
+  .superRefine((data, ctx) => {
+    const cat =
+      data.type.trim() !== ""
+        ? getPropertyTypeCategory(data.type.trim())
+        : "unknown";
+
+    const treatAsResidential =
+      cat === "residential" ||
+      cat === "unknown";
+
+    const hasUnitMarker =
+      (data.flatNumber?.trim()?.length ?? 0) > 0 ||
+      (data.buildingName?.trim()?.length ?? 0) > 0;
+
+    if (
+      parseFloat(String(data.carpetArea)) < 1 ||
+      Number.isNaN(parseFloat(String(data.carpetArea)))
+    ) {
+      ctx.addIssue({
+        path: ["carpetArea"],
+        code: z.ZodIssueCode.custom,
+        message: "Area is required",
+      });
+    }
+
+    if (treatAsResidential) {
+      if (!(data.bhk?.trim()?.length ?? 0)) {
+        ctx.addIssue({
+          path: ["bhk"],
+          code: z.ZodIssueCode.custom,
+          message: "Bedroom configuration is required",
+        });
+      }
+      if (typeof data.bathrooms !== "number" || data.bathrooms < 1) {
+        ctx.addIssue({
+          path: ["bathrooms"],
+          code: z.ZodIssueCode.custom,
+          message: "At least one bathroom is required",
+        });
+      }
+      if (!(data.furnishing?.trim()?.length ?? 0)) {
+        ctx.addIssue({
+          path: ["furnishing"],
+          code: z.ZodIssueCode.custom,
+          message: "Furnishing status is required",
+        });
+      }
+      return;
+    }
+
+    if (cat === "commercial") {
+      if (!hasUnitMarker) {
+        ctx.addIssue({
+          path: ["flatNumber"],
+          code: z.ZodIssueCode.custom,
+          message: "Shop / unit no. or building / complex name is required",
+        });
+      }
+      if (!(data.furnishing?.trim()?.length ?? 0)) {
+        ctx.addIssue({
+          path: ["furnishing"],
+          code: z.ZodIssueCode.custom,
+          message: "Select fit-out / furnishing status",
+        });
+      }
+      if (typeof data.bathrooms === "number" && data.bathrooms > 99) {
+        ctx.addIssue({
+          path: ["bathrooms"],
+          code: z.ZodIssueCode.custom,
+          message: "Too high",
+        });
+      }
+      return;
+    }
+
+    if (cat === "warehouse") {
+      if (
+        typeof data.bathrooms === "number" &&
+        (!Number.isInteger(data.bathrooms) ||
+          data.bathrooms < 0 ||
+          data.bathrooms > 99)
+      ) {
+        ctx.addIssue({
+          path: ["bathrooms"],
+          code: z.ZodIssueCode.custom,
+          message: "Enter a whole number between 0 and 99",
+        });
+      }
+      return;
+    }
+
+    /* land_building */
+    if (
+      typeof data.bathrooms === "number" &&
+      (!Number.isInteger(data.bathrooms) ||
+        data.bathrooms < 0 ||
+        data.bathrooms > 99)
+    ) {
+      ctx.addIssue({
+        path: ["bathrooms"],
+        code: z.ZodIssueCode.custom,
+        message: "Enter a whole number between 0 and 99",
+      });
+    }
+  })
+  .transform((data) => {
+    const cat = getPropertyTypeCategory(data.type.trim());
+    const treatAsResidential = cat === "residential" || cat === "unknown";
+
+    let bhk =
+      typeof data.bhk === "string" ? data.bhk.trim() : "";
+    const furnishingTrim = (
+      typeof data.furnishing === "string"
+        ? data.furnishing.trim()
+        : ""
+    ).trim();
+
+    if (!treatAsResidential && !bhk) {
+      bhk = "—";
+    }
+
+    let furnishing = furnishingTrim;
+    if (
+      !furnishing &&
+      (cat === "warehouse" || cat === "land_building")
+    ) {
+      furnishing = "Not applicable";
+    }
+
+    const bathroomsComputed =
+      typeof data.bathrooms === "number" && Number.isFinite(data.bathrooms)
+        ? Math.min(
+            Math.max(Math.trunc(data.bathrooms), 0),
+            99,
+          )
+        : treatAsResidential
+          ? Math.max(Number(data.bathrooms) || 1, 1)
+          : cat === "commercial"
+            ? 1
+            : 0;
+
+    const amenitiesAllowed = new Set(amenitiesForPropertyCategory(cat));
+    const amenities = data.amenities.filter((a) => amenitiesAllowed.has(a));
+
+    const customAmenities = data.customAmenities.map((row) => ({
+      item: row.item.trim(),
+      units: Math.min(Math.max(Math.trunc(row.units), 1), 999),
+    }));
+
+    return {
+      ...data,
+      bhk,
+      furnishing,
+      bathrooms: bathroomsComputed,
+      amenities,
+      customAmenities,
+    };
+  });
+export type PropertyData = z.output<typeof propertySchema>;
 
 const partySchema = z.object({
   fullName: requiredString("Full name is required"),

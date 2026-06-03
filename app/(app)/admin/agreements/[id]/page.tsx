@@ -116,6 +116,11 @@ export default async function AdminAgreementDetailPage({
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Customer</CardTitle>
+            <CardDescription>
+              Email/password sign-up uses their 10-digit mobile as database
+              user id so staff can filter by mobile. OAuth accounts use an
+              internal id unless a mobile is saved.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <Row label="Name" value={agreement.user.name ?? "—"} />

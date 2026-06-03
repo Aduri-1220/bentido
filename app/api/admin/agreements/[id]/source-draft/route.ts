@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
-import { isAdminEmail } from "@/lib/admin";
+import { staffAgreementAccessForUserId } from "@/lib/staff-agreement-access";
 
 export async function GET(
   _req: Request,
   { params }: { params: { id: string } },
 ) {
   const user = await getCurrentUser();
-  if (!user || !isAdminEmail(user.email))
+  if (!user || !(await staffAgreementAccessForUserId(user.id)))
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const agreement = await prisma.agreement.findUnique({

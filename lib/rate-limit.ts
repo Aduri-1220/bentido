@@ -13,12 +13,18 @@ export async function rateLimitIdentity(
   const url = process.env.UPSTASH_REDIS_REST_URL?.trim();
   const token = process.env.UPSTASH_REDIS_REST_TOKEN?.trim();
   if (!url || !token) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN must be set in production (rate limiting required)",
+      );
+    }
     if (!warnedMissingRedis) {
       warnedMissingRedis = true;
       console.warn(
         "[rate-limit] UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN not set — rate limiting is disabled.",
       );
     }
+    // In dev/test, allow requests without rate limiting
     return { ok: true };
   }
 

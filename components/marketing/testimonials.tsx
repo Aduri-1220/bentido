@@ -7,7 +7,7 @@ const items = [
     name: "Aakash Verma",
     role: "Landlord, Bengaluru",
     rating: 5,
-    body: "Drafted, e-signed and got the courier in under 48 hours. Saved me three trips to the sub-registrar.",
+    body: "Drafted, e-signed, and had the PDF the same evening — no weekday mornings lost on errands.",
   },
   {
     name: "Megha Iyer",

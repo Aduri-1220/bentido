@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Pencil } from "lucide-react";
 import { cn, formatDate, formatINR, numberToWords } from "@/lib/utils";
 import { INDIAN_STATES } from "@/lib/constants";
+import { getPropertyTypeCategory } from "@/lib/property-type-category";
 import type {
   ClausesData,
   OwnerData,
@@ -35,6 +36,28 @@ export function DraftDocument({
 }: DraftDocumentProps) {
   const stateLabel =
     INDIAN_STATES.find((s) => s.value === property?.state)?.label ?? "____";
+
+  const scheduleCategory =
+    property?.type && property.type.trim() !== ""
+      ? getPropertyTypeCategory(property.type.trim())
+      : "unknown";
+  const scheduleResidentialLike =
+    scheduleCategory === "residential" || scheduleCategory === "unknown";
+  const restroomsScheduleLabel =
+    scheduleResidentialLike
+      ? "Bathrooms"
+      : scheduleCategory === "commercial"
+        ? "Restrooms / WCs"
+        : "Toilets / restrooms";
+  const furnishingScheduleLabel =
+    scheduleCategory === "commercial" ? "Fit-out / furnishing" : "Furnishing";
+  const areaScheduleLabel =
+    scheduleCategory === "warehouse" ||
+    scheduleCategory === "land_building"
+      ? "Built-up / demised area"
+      : scheduleCategory === "commercial"
+        ? "Built-up / carpet area"
+        : "Carpet area";
 
   return (
     <article className="print-page mx-auto w-full max-w-[820px] rounded-2xl border bg-white p-8 font-serif text-slate-900 shadow-xl md:p-14">
@@ -136,13 +159,21 @@ export function DraftDocument({
         </p>
         <div className="mt-3 rounded-md border border-slate-300 p-4 text-sm leading-7">
           <div>
-            <em>Type:</em> {property?.type || "____"} — <em>Bedrooms:</em>{" "}
-            {property?.bhk || "____"} — <em>Bathrooms:</em>{" "}
-            {property?.bathrooms || "____"} — <em>Furnishing:</em>{" "}
+            <em>Type:</em> {property?.type || "____"}
+            {scheduleResidentialLike ? (
+              <>
+                {" "}
+                — <em>Bedrooms:</em> {property?.bhk || "____"}
+              </>
+            ) : null}{" "}
+            — <em>{restroomsScheduleLabel}:</em>{" "}
+            {property?.bathrooms != null ? property.bathrooms : "____"}{" "}
+            — <em>{furnishingScheduleLabel}:</em>{" "}
             {property?.furnishing || "____"}
           </div>
           <div>
-            <em>Carpet area:</em> {property?.carpetArea || "____"} sq. ft.
+            <em>{areaScheduleLabel}:</em> {property?.carpetArea || "____"}{" "}
+            sq. ft.
           </div>
           <div>
             <em>Address:</em>{" "}
@@ -169,6 +200,15 @@ export function DraftDocument({
               <em>Amenities:</em> {property.amenities.join(", ")}
             </div>
           )}
+          {property?.customAmenities &&
+            property.customAmenities.length > 0 && (
+              <div>
+                <em>Additional amenities:</em>{" "}
+                {property.customAmenities
+                  .map((c) => `${c.item} (×${c.units})`)
+                  .join(", ")}
+              </div>
+            )}
         </div>
       </DraftSection>
 

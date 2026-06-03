@@ -26,7 +26,7 @@ export function Hero() {
             className="mb-5 inline-flex items-center gap-2 rounded-full border bg-white/70 px-3 py-1 text-xs font-medium text-slate-700 shadow-sm backdrop-blur"
           >
             <Sparkles className="h-3.5 w-3.5 text-brand-600" />
-            Lawyer-vetted templates · Aadhaar e-sign · Doorstep delivery
+            Structured templates · Aadhaar e-sign · Doorstep delivery
           </motion.div>
 
           <motion.h1

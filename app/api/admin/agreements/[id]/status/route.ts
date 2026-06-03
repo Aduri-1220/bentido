@@ -6,16 +6,16 @@ import {
   paymentQualifiesForWorkflow,
   validateUserHttpStatusTransition,
 } from "@/lib/agreement-status";
-import { isAdminEmail } from "@/lib/admin";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
+import { staffAgreementAccessForUserId } from "@/lib/staff-agreement-access";
 
 const bodySchema = z.object({
   status: agreementStatusSchema,
 });
 
 /**
- * Advance agreement workflow for any customer — staff only (`ADMIN_EMAILS`).
+ * Advance agreement workflow for any customer — staff (`ADMIN_EMAILS` or `WORKER_EMAILS`).
  * Same transition rules as POST /api/agreements/:id/status (linear, payment required).
  */
 export async function POST(
@@ -23,7 +23,7 @@ export async function POST(
   { params }: { params: { id: string } },
 ) {
   const user = await getCurrentUser();
-  if (!user || !isAdminEmail(user.email))
+  if (!user || !(await staffAgreementAccessForUserId(user.id)))
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const parsed = bodySchema.safeParse(await req.json());
