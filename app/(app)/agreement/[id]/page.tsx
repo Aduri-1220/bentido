@@ -95,7 +95,6 @@ export default async function AgreementStatusPage({
               label="Txn / ref"
               value={
                 payment?.providerPaymentId ??
-                payment?.mockTxnId ??
                 payment?.providerOrderId ??
                 "—"
               }

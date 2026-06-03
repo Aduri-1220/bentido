@@ -9,9 +9,12 @@ import type {
   WitnessesData,
 } from "./schemas";
 
+type Gender = "Male" | "Female" | "Other";
+
 export interface UploadFastTrackInput {
   city: string;
   state: string;
+  propertyPincode: string;
   uploadOverridesRequested: boolean;
   securityDeposit: number;
   stampValue: number;
@@ -21,32 +24,48 @@ export interface UploadFastTrackInput {
   landlordFullName: string;
   landlordEmail: string;
   landlordPhone: string;
+  landlordAge: number;
+  landlordGender: Gender;
+  landlordAadhaarLast4: string;
+  landlordPincode: string;
   tenantFullName: string;
   tenantEmail: string;
   tenantPhone: string;
+  tenantAge: number;
+  tenantGender: Gender;
+  tenantAadhaarLast4: string;
+  tenantPincode: string;
+}
+
+interface PartyMinimal {
+  fullName: string;
+  email: string;
+  phone: string;
+  age: number;
+  gender: Gender;
+  aadhaarLast4: string;
+  pincode: string;
 }
 
 function partyFromMinimal(
-  fullName: string,
-  email: string,
-  phone: string,
+  party: PartyMinimal,
   city: string,
   state: string,
 ): OwnerData {
   return {
-    fullName: fullName.trim(),
+    fullName: party.fullName.trim(),
     fatherName: "",
-    age: 21,
-    gender: "Other",
+    age: party.age,
+    gender: party.gender,
     occupation: "",
-    aadhaarLast4: "0000",
+    aadhaarLast4: party.aadhaarLast4,
     pan: "",
-    phone: phone.trim(),
-    email: email.trim().toLowerCase(),
+    phone: party.phone.trim(),
+    email: party.email.trim().toLowerCase(),
     addressLine1: UPLOAD_FLOW_PROPERTY_ADDRESS,
     city: city.trim(),
     state,
-    pincode: "560001",
+    pincode: party.pincode,
   };
 }
 
@@ -78,24 +97,36 @@ export function buildUploadFastTrackPayload(input: UploadFastTrackInput): {
     locality: city,
     city,
     state,
-    pincode: "560001",
+    pincode: input.propertyPincode,
     carpetArea: 500,
     amenities: [],
     furnitureSchedule: [],
   };
 
   const owner = partyFromMinimal(
-    input.landlordFullName,
-    input.landlordEmail,
-    input.landlordPhone,
+    {
+      fullName: input.landlordFullName,
+      email: input.landlordEmail,
+      phone: input.landlordPhone,
+      age: input.landlordAge,
+      gender: input.landlordGender,
+      aadhaarLast4: input.landlordAadhaarLast4,
+      pincode: input.landlordPincode,
+    },
     city,
     state,
   );
   const tenant = asTenant(
     partyFromMinimal(
-      input.tenantFullName,
-      input.tenantEmail,
-      input.tenantPhone,
+      {
+        fullName: input.tenantFullName,
+        email: input.tenantEmail,
+        phone: input.tenantPhone,
+        age: input.tenantAge,
+        gender: input.tenantGender,
+        aadhaarLast4: input.tenantAadhaarLast4,
+        pincode: input.tenantPincode,
+      },
       city,
       state,
     ),

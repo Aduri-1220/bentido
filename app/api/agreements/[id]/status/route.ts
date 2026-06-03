@@ -7,6 +7,7 @@ import {
   validateUserHttpStatusTransition,
 } from "@/lib/agreement-status";
 import { prisma } from "@/lib/db";
+import { enforceUserRateLimit } from "@/lib/rate-limit";
 import { getCurrentUser } from "@/lib/session";
 
 const bodySchema = z.object({
@@ -30,6 +31,15 @@ export async function POST(
   const user = await getCurrentUser();
   if (!user)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const limited = await enforceUserRateLimit({
+    req,
+    userId: user.id,
+    prefix: "agreement-status",
+    max: 60,
+    windowSec: 3600,
+  });
+  if (limited) return limited;
 
   const parsed = bodySchema.safeParse(await req.json());
   if (!parsed.success)

@@ -39,24 +39,23 @@ export function TenantForm({
     formState: { errors, isDirty },
   } = useForm<TenantData>({
     resolver: zodResolver(tenantSchema),
-    defaultValues:
-      initial ??      
-      ({
-        fullName: "",
-        fatherName: "",
-        gender: "Male",
-        occupation: "",
-        aadhaarLast4: "",
-        pan: "",
-        phone: "",
-        email: "",
-        addressLine1: "",
-        city: "",
-        state: "",
-        pincode: "",
-        employer: "",
-        familyMembers: [],
-      } as unknown as TenantData),
+    defaultValues: initial ?? {
+      fullName: "",
+      fatherName: "",
+      age: undefined,
+      gender: "Male",
+      occupation: "",
+      aadhaarLast4: "",
+      pan: "",
+      phone: "",
+      email: "",
+      addressLine1: "",
+      city: "",
+      state: "",
+      pincode: "",
+      employer: "",
+      familyMembers: [],
+    },
   });
 
   const { fields, append, remove } = useFieldArray({
@@ -234,6 +233,8 @@ export function TenantForm({
             variant="outline"
             size="sm"
             onClick={() =>
+              // Start with a blank age input; schema preprocess turns "" into a
+              // proper validation error rather than coercing to 0.
               append({
                 name: "",
                 relation: "",

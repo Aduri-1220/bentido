@@ -20,6 +20,25 @@ export function isMockCheckoutForbiddenInProduction(): boolean {
   );
 }
 
+/**
+ * Hard boot guard: refuse to run with MOCK payment provider in production
+ * unless an explicit override env var (ALLOW_MOCK_PAYMENTS_IN_PROD=true) is set.
+ * Call once at process startup (instrumentation.ts).
+ */
+export function assertPaymentProviderSafeForEnvironment(): void {
+  if (process.env.NODE_ENV !== "production") return;
+  if (getPaymentProvider() !== "MOCK") return;
+  if (process.env.ALLOW_MOCK_PAYMENTS_IN_PROD === "true") {
+    console.warn(
+      "[payment-config] MOCK payment provider enabled in production via ALLOW_MOCK_PAYMENTS_IN_PROD=true. Staging only — never expose to real customers.",
+    );
+    return;
+  }
+  throw new Error(
+    "Refusing to boot: PAYMENT_PROVIDER=mock is not allowed in production. Set PAYMENT_PROVIDER=razorpay with API keys, or ALLOW_MOCK_PAYMENTS_IN_PROD=true for staging.",
+  );
+}
+
 export function getRazorpayPublishableKey(): string | undefined {
   return process.env.RAZORPAY_KEY_ID?.trim() || undefined;
 }

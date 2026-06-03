@@ -5,6 +5,7 @@ import {
   WIZARD_ENTRY_UPLOAD_DRAFT,
   type WizardEntryKind,
 } from "@/lib/constants";
+import { enforceUserRateLimit } from "@/lib/rate-limit";
 import { getCurrentUser } from "@/lib/session";
 
 export async function GET() {
@@ -24,6 +25,15 @@ export async function POST(req: Request) {
   const user = await getCurrentUser();
   if (!user)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const limited = await enforceUserRateLimit({
+    req,
+    userId: user.id,
+    prefix: "agreement-create",
+    max: 30,
+    windowSec: 3600,
+  });
+  if (limited) return limited;
 
   let wizardEntry: WizardEntryKind | undefined;
   const ctype = req.headers.get("content-type") ?? "";

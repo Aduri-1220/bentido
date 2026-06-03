@@ -12,7 +12,7 @@ function emptyNumberToUndefined(val: unknown): unknown {
   return n;
 }
 
-/** Canonical PAN string for inputs + validation: NFKC, strip spaces/dashes, A–Z0–9 only, cap 10. */
+/** Canonical PAN string for inputs + validation: NFKC, strip spaces/dashes, A–Z0–9 only. Length is enforced by the schema so over-long input surfaces as an error rather than being silently truncated. */
 export function normalizePanInput(raw: unknown): string {
   if (raw == null || raw === "") return "";
   try {
@@ -20,14 +20,12 @@ export function normalizePanInput(raw: unknown): string {
       .normalize("NFKC")
       .replace(/[\s-]/g, "")
       .toUpperCase()
-      .replace(/[^A-Z0-9]/g, "")
-      .slice(0, 10);
+      .replace(/[^A-Z0-9]/g, "");
   } catch {
     return String(raw)
       .trim()
       .toUpperCase()
-      .replace(/[^A-Z0-9]/g, "")
-      .slice(0, 10);
+      .replace(/[^A-Z0-9]/g, "");
   }
 }
 
@@ -178,6 +176,30 @@ export const witnessesSchema = z.object({
 });
 export type WitnessesData = z.infer<typeof witnessesSchema>;
 
+const fastTrackAge = z.preprocess(
+  emptyNumberToUndefined,
+  z
+    .number({
+      required_error: "Age is required",
+      invalid_type_error: "Age is required",
+    })
+    .int()
+    .min(18, "Must be at least 18")
+    .max(120),
+);
+
+const fastTrackAadhaarLast4 = z
+  .string()
+  .regex(/^\d{4}$/, "Enter last 4 digits of Aadhaar");
+
+const fastTrackGender = z.enum(["Male", "Female", "Other"], {
+  errorMap: () => ({ message: "Gender is required" }),
+});
+
+const fastTrackPincode = z
+  .string()
+  .regex(/^\d{6}$/, "Enter a valid 6-digit PIN code");
+
 export const uploadFastTrackStep1Schema = z.object({
   city: requiredString("City is required"),
   state: z
@@ -187,6 +209,7 @@ export const uploadFastTrackStep1Schema = z.object({
       (v) => INDIAN_STATES.some((s) => s.value === v),
       "Pick a valid state",
     ),
+  propertyPincode: fastTrackPincode,
   uploadOverridesRequested: z.boolean(),
   securityDeposit: z.coerce
     .number({ invalid_type_error: "Enter deposit amount" })
@@ -207,11 +230,19 @@ export const uploadFastTrackStep1Schema = z.object({
   landlordPhone: z
     .string()
     .regex(/^[6-9]\d{9}$/, "Enter a valid 10-digit landlord phone"),
+  landlordAge: fastTrackAge,
+  landlordGender: fastTrackGender,
+  landlordAadhaarLast4: fastTrackAadhaarLast4,
+  landlordPincode: fastTrackPincode,
   tenantFullName: requiredString("Tenant name is required"),
   tenantEmail: z.string().email("Enter a valid tenant email"),
   tenantPhone: z
     .string()
     .regex(/^[6-9]\d{9}$/, "Enter a valid 10-digit tenant phone"),
+  tenantAge: fastTrackAge,
+  tenantGender: fastTrackGender,
+  tenantAadhaarLast4: fastTrackAadhaarLast4,
+  tenantPincode: fastTrackPincode,
 });
 export type UploadFastTrackStep1Data = z.infer<
   typeof uploadFastTrackStep1Schema

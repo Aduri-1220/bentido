@@ -109,6 +109,7 @@ function UploadDraftCheckoutForm({
     defaultValues: {
       city: "",
       state: "",
+      propertyPincode: "",
       uploadOverridesRequested: false,
       securityDeposit: 0,
       stampValue: 100,
@@ -117,9 +118,17 @@ function UploadDraftCheckoutForm({
       landlordFullName: "",
       landlordEmail: "",
       landlordPhone: "",
+      landlordAge: undefined,
+      landlordGender: "Male",
+      landlordAadhaarLast4: "",
+      landlordPincode: "",
       tenantFullName: "",
       tenantEmail: "",
       tenantPhone: "",
+      tenantAge: undefined,
+      tenantGender: "Male",
+      tenantAadhaarLast4: "",
+      tenantPincode: "",
       ...defaults,
     },
   });
@@ -127,6 +136,8 @@ function UploadDraftCheckoutForm({
   const stateVal = watch("state");
   const stampVal = watch("stampValue");
   const rentExc = watch("rentExcludingMaintenance");
+  const landlordGenderVal = watch("landlordGender");
+  const tenantGenderVal = watch("tenantGender");
 
   const draftHasUnsaved = isDirty || pickedFile != null;
   useUnsavedChangesWarning(draftHasUnsaved);
@@ -142,6 +153,7 @@ function UploadDraftCheckoutForm({
       const fd = new FormData();
       fd.append("city", values.city);
       fd.append("state", values.state);
+      fd.append("propertyPincode", values.propertyPincode);
       fd.append(
         "uploadOverridesRequested",
         values.uploadOverridesRequested ? "true" : "false",
@@ -153,9 +165,17 @@ function UploadDraftCheckoutForm({
       fd.append("landlordFullName", values.landlordFullName);
       fd.append("landlordEmail", values.landlordEmail);
       fd.append("landlordPhone", values.landlordPhone);
+      fd.append("landlordAge", String(values.landlordAge));
+      fd.append("landlordGender", values.landlordGender);
+      fd.append("landlordAadhaarLast4", values.landlordAadhaarLast4);
+      fd.append("landlordPincode", values.landlordPincode);
       fd.append("tenantFullName", values.tenantFullName);
       fd.append("tenantEmail", values.tenantEmail);
       fd.append("tenantPhone", values.tenantPhone);
+      fd.append("tenantAge", String(values.tenantAge));
+      fd.append("tenantGender", values.tenantGender);
+      fd.append("tenantAadhaarLast4", values.tenantAadhaarLast4);
+      fd.append("tenantPincode", values.tenantPincode);
       if (pickedFile) fd.append("file", pickedFile);
 
       const res = await fetch(
@@ -267,7 +287,7 @@ function UploadDraftCheckoutForm({
                   </p>
                 )}
               </div>
-              <div className="space-y-1.5 sm:col-span-2">
+              <div className="space-y-1.5">
                 <Label htmlFor="state">
                   <Req>State</Req>
                 </Label>
@@ -291,6 +311,24 @@ function UploadDraftCheckoutForm({
                 {errors.state && (
                   <p className="text-xs text-destructive">
                     {errors.state.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="propertyPincode">
+                  <Req>Property PIN code</Req>
+                </Label>
+                <Input
+                  id="propertyPincode"
+                  inputMode="numeric"
+                  maxLength={6}
+                  placeholder="6-digit"
+                  {...register("propertyPincode")}
+                />
+                {errors.propertyPincode && (
+                  <p className="text-xs text-destructive">
+                    {errors.propertyPincode.message}
                   </p>
                 )}
               </div>
@@ -463,6 +501,79 @@ function UploadDraftCheckoutForm({
                   </p>
                 )}
               </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="landlordAge">Age</Label>
+                <Input
+                  id="landlordAge"
+                  type="number"
+                  min={18}
+                  max={120}
+                  placeholder="e.g. 42"
+                  {...register("landlordAge")}
+                />
+                {errors.landlordAge && (
+                  <p className="text-xs text-destructive">
+                    {errors.landlordAge.message}
+                  </p>
+                )}
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="landlordGender">Gender</Label>
+                <Select
+                  value={landlordGenderVal || undefined}
+                  onValueChange={(v) =>
+                    setValue("landlordGender", v as "Male" | "Female" | "Other", {
+                      shouldValidate: true,
+                    })
+                  }
+                >
+                  <SelectTrigger id="landlordGender">
+                    <SelectValue placeholder="Gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Male">Male</SelectItem>
+                    <SelectItem value="Female">Female</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.landlordGender && (
+                  <p className="text-xs text-destructive">
+                    {errors.landlordGender.message}
+                  </p>
+                )}
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="landlordAadhaarLast4">
+                  Aadhaar (last 4 digits)
+                </Label>
+                <Input
+                  id="landlordAadhaarLast4"
+                  inputMode="numeric"
+                  maxLength={4}
+                  placeholder="XXXX"
+                  {...register("landlordAadhaarLast4")}
+                />
+                {errors.landlordAadhaarLast4 && (
+                  <p className="text-xs text-destructive">
+                    {errors.landlordAadhaarLast4.message}
+                  </p>
+                )}
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="landlordPincode">PIN code</Label>
+                <Input
+                  id="landlordPincode"
+                  inputMode="numeric"
+                  maxLength={6}
+                  placeholder="6-digit"
+                  {...register("landlordPincode")}
+                />
+                {errors.landlordPincode && (
+                  <p className="text-xs text-destructive">
+                    {errors.landlordPincode.message}
+                  </p>
+                )}
+              </div>
             </div>
             <Button
               type="button"
@@ -523,6 +634,79 @@ function UploadDraftCheckoutForm({
                 {errors.tenantPhone && (
                   <p className="text-xs text-destructive">
                     {errors.tenantPhone.message}
+                  </p>
+                )}
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="tenantAge">Age</Label>
+                <Input
+                  id="tenantAge"
+                  type="number"
+                  min={18}
+                  max={120}
+                  placeholder="e.g. 28"
+                  {...register("tenantAge")}
+                />
+                {errors.tenantAge && (
+                  <p className="text-xs text-destructive">
+                    {errors.tenantAge.message}
+                  </p>
+                )}
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="tenantGender">Gender</Label>
+                <Select
+                  value={tenantGenderVal || undefined}
+                  onValueChange={(v) =>
+                    setValue("tenantGender", v as "Male" | "Female" | "Other", {
+                      shouldValidate: true,
+                    })
+                  }
+                >
+                  <SelectTrigger id="tenantGender">
+                    <SelectValue placeholder="Gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Male">Male</SelectItem>
+                    <SelectItem value="Female">Female</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.tenantGender && (
+                  <p className="text-xs text-destructive">
+                    {errors.tenantGender.message}
+                  </p>
+                )}
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="tenantAadhaarLast4">
+                  Aadhaar (last 4 digits)
+                </Label>
+                <Input
+                  id="tenantAadhaarLast4"
+                  inputMode="numeric"
+                  maxLength={4}
+                  placeholder="XXXX"
+                  {...register("tenantAadhaarLast4")}
+                />
+                {errors.tenantAadhaarLast4 && (
+                  <p className="text-xs text-destructive">
+                    {errors.tenantAadhaarLast4.message}
+                  </p>
+                )}
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="tenantPincode">PIN code</Label>
+                <Input
+                  id="tenantPincode"
+                  inputMode="numeric"
+                  maxLength={6}
+                  placeholder="6-digit"
+                  {...register("tenantPincode")}
+                />
+                {errors.tenantPincode && (
+                  <p className="text-xs text-destructive">
+                    {errors.tenantPincode.message}
                   </p>
                 )}
               </div>

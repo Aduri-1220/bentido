@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { WIZARD_ENTRY_UPLOAD_DRAFT } from "@/lib/constants";
 import { getCurrentUser } from "@/lib/session";
+import { enforceUserRateLimit } from "@/lib/rate-limit";
 import { uploadFastTrackStep1Schema } from "@/lib/schemas";
 import { buildUploadFastTrackPayload } from "@/lib/upload-fast-track";
 
@@ -40,6 +41,15 @@ export async function POST(
   if (!user)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  const limited = await enforceUserRateLimit({
+    req,
+    userId: user.id,
+    prefix: "upload-fast-track",
+    max: 30,
+    windowSec: 3600,
+  });
+  if (limited) return limited;
+
   const agreement = await prisma.agreement.findFirst({
     where: { id: params.id, userId: user.id },
   });
@@ -58,6 +68,7 @@ export async function POST(
   const parsedBody = uploadFastTrackStep1Schema.safeParse({
     city: str(form, "city"),
     state: str(form, "state"),
+    propertyPincode: str(form, "propertyPincode"),
     uploadOverridesRequested: str(form, "uploadOverridesRequested") === "true",
     securityDeposit: Number(str(form, "securityDeposit")),
     stampValue: Number(str(form, "stampValue")),
@@ -66,9 +77,17 @@ export async function POST(
     landlordFullName: str(form, "landlordFullName"),
     landlordEmail: str(form, "landlordEmail"),
     landlordPhone: str(form, "landlordPhone"),
+    landlordAge: str(form, "landlordAge"),
+    landlordGender: str(form, "landlordGender"),
+    landlordAadhaarLast4: str(form, "landlordAadhaarLast4"),
+    landlordPincode: str(form, "landlordPincode"),
     tenantFullName: str(form, "tenantFullName"),
     tenantEmail: str(form, "tenantEmail"),
     tenantPhone: str(form, "tenantPhone"),
+    tenantAge: str(form, "tenantAge"),
+    tenantGender: str(form, "tenantGender"),
+    tenantAadhaarLast4: str(form, "tenantAadhaarLast4"),
+    tenantPincode: str(form, "tenantPincode"),
   });
 
   if (!parsedBody.success) {

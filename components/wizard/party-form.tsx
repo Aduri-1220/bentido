@@ -45,22 +45,21 @@ export function PartyForm({
     formState: { errors, isDirty },
   } = useForm<OwnerData>({
     resolver: zodResolver(ownerSchema),
-    defaultValues:
-      initial ??
-      ({
-        fullName: "",
-        fatherName: "",
-        gender: "Male",
-        occupation: "",
-        aadhaarLast4: "",
-        pan: "",
-        phone: "",
-        email: "",
-        addressLine1: "",
-        city: "",
-        state: "",
-        pincode: "",
-      } as unknown as OwnerData),
+    defaultValues: initial ?? {
+      fullName: "",
+      fatherName: "",
+      age: undefined,
+      gender: "Male",
+      occupation: "",
+      aadhaarLast4: "",
+      pan: "",
+      phone: "",
+      email: "",
+      addressLine1: "",
+      city: "",
+      state: "",
+      pincode: "",
+    },
   });
 
   useUnsavedChangesWarning(isDirty);

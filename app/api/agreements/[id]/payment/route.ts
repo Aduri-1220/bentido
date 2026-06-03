@@ -13,6 +13,7 @@ import {
   isPaymentSimulateAllowed,
 } from "@/lib/payment-config";
 import { razorpayCreateOrder } from "@/lib/razorpay";
+import { enforceUserRateLimit } from "@/lib/rate-limit";
 import { getCurrentUser } from "@/lib/session";
 
 const mockBodySchema = z.object({
@@ -60,6 +61,15 @@ export async function POST(
   const user = await getCurrentUser();
   if (!user)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const limited = await enforceUserRateLimit({
+    req,
+    userId: user.id,
+    prefix: "payment-intent",
+    max: 20,
+    windowSec: 600,
+  });
+  if (limited) return limited;
 
   const agreement = await prisma.agreement.findFirst({
     where: { id: params.id, userId: user.id },

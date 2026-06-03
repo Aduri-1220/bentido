@@ -10,15 +10,7 @@ function clientIp(req: NextRequest): string {
   );
 }
 
-function withSecurityHeaders(res: NextResponse): NextResponse {
-  res.headers.set("X-Content-Type-Options", "nosniff");
-  res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  res.headers.set(
-    "Permissions-Policy",
-    "camera=(), microphone=(), geolocation=()",
-  );
-  return res;
-}
+// Security headers are set globally in next.config.mjs `headers()`.
 
 const RATE: Record<string, { prefix: string; max: number; windowSec: number }> =
   {
@@ -50,18 +42,17 @@ export async function middleware(req: NextRequest) {
       rule.windowSec,
     );
     if (!r.ok) {
-      const res = NextResponse.json(
+      return NextResponse.json(
         { error: "Too many requests" },
         {
           status: 429,
           headers: { "Retry-After": String(r.retryAfterSec) },
         },
       );
-      return withSecurityHeaders(res);
     }
   }
 
-  return withSecurityHeaders(NextResponse.next());
+  return NextResponse.next();
 }
 
 export const config = {
