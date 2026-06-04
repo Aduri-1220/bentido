@@ -5,7 +5,7 @@ import { useUnsavedChangesWarning } from "@/hooks/use-unsaved-changes-warning";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { IndianRupee, CalendarDays } from "lucide-react";
+import { IndianRupee, CalendarDays, AlertTriangle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -53,6 +53,7 @@ export function TermsForm({
       incrementPercent: 5,
       rentDueDay: 5,
       paymentMode: PAYMENT_MODES[0],
+      acknowledgesNoRegistration: false,
     },
   });
 
@@ -61,6 +62,8 @@ export function TermsForm({
   const rent = Number(watch("monthlyRent") || 0);
   const deposit = Number(watch("securityDeposit") || 0);
   const maintenanceIncluded = !!watch("maintenanceIncluded");
+  const durationMonths = Number(watch("durationMonths") || 0);
+  const requiresRegistrationAck = durationMonths > 11;
 
   async function onSubmit(data: TermsData) {
     setSubmitting(true);
@@ -134,6 +137,43 @@ export function TermsForm({
             {...register("durationMonths")}
           />
         </Field>
+        {requiresRegistrationAck ? (
+          <div className="md:col-span-2 rounded-xl border border-amber-200 bg-amber-50 p-4">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+              <div className="text-sm text-amber-900">
+                <p className="font-semibold">
+                  Leases of 12 months or more are not registered at the SRO.
+                </p>
+                <p className="mt-1 text-amber-900/90">
+                  bentido will stamp the agreement under the applicable State
+                  Stamp Act and have all parties sign it with Aadhaar eSign.
+                  We do not register the agreement at the Sub-Registrar
+                  Office. The agreement remains valid and binding between
+                  parties and is admissible for collateral purposes in court.
+                  If you need registration for full enforcement, you can
+                  pursue it separately at your local SRO.
+                </p>
+                <label className="mt-3 flex items-start gap-2 text-amber-900">
+                  <input
+                    type="checkbox"
+                    {...register("acknowledgesNoRegistration")}
+                    className="mt-0.5 h-4 w-4 rounded border-amber-400 text-amber-700 focus:ring-amber-500"
+                  />
+                  <span className="text-sm">
+                    I understand this agreement will not be registered at the
+                    Sub-Registrar Office.
+                  </span>
+                </label>
+                {errors.acknowledgesNoRegistration ? (
+                  <p className="mt-1 text-xs text-red-700">
+                    {errors.acknowledgesNoRegistration.message}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        ) : null}
         <Field
           label="Lock-in period (months)"
           htmlFor="lockInMonths"

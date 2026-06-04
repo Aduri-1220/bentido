@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { parseAgreementJsonFields } from "@/lib/agreement";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { deliveryUsesExecutedCopyUpload } from "@/lib/delivery-executed-copy";
 import { computeTotal, PRICING, type DeliveryMethod } from "@/lib/pricing";
+import { computeStampDuty } from "@/lib/stamp-duty";
 
 const bodySchema = z.object({
   esignSignatories: z.number().int().min(0).max(8),
@@ -16,7 +18,6 @@ const bodySchema = z.object({
     "EXPRESS",
   ]),
   deliveryAddress: z.string().optional(),
-  stampValue: z.number().int().min(50),
 });
 
 export async function POST(
@@ -40,13 +41,27 @@ export async function POST(
   if (!agreement)
     return NextResponse.json({ error: "Not found" }, { status: 404 });
 
+  const parsedFields = parseAgreementJsonFields(agreement);
+  if (!parsedFields.property || !parsedFields.terms) {
+    return NextResponse.json(
+      { error: "Complete property and terms before add-ons." },
+      { status: 400 },
+    );
+  }
+  const stamp = computeStampDuty({
+    state: parsedFields.property.state,
+    durationMonths: parsedFields.terms.durationMonths,
+    monthlyRent: parsedFields.terms.monthlyRent,
+    securityDeposit: parsedFields.terms.securityDeposit,
+  });
+
   const d = parsed.data;
   const breakdown = computeTotal({
     esignSignatories: d.esignSignatories,
     notary: d.notary,
     extraCopies: d.extraCopies,
     delivery: d.delivery as DeliveryMethod,
-    stampDuty: d.stampValue,
+    stampDuty: stamp.stampValue,
   });
 
   const noCourierAddress =
@@ -106,7 +121,7 @@ export async function POST(
     });
     await tx.agreement.update({
       where: { id: params.id },
-      data: { stampValue: d.stampValue },
+      data: { stampValue: stamp.stampValue },
     });
   });
 

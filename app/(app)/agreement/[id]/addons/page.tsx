@@ -6,6 +6,7 @@ import {
   completedSteps,
 } from "@/lib/agreement";
 import { INDIAN_STATES, WIZARD_ENTRY_UPLOAD_DRAFT } from "@/lib/constants";
+import { computeStampDuty } from "@/lib/stamp-duty";
 import { WizardShell } from "@/components/wizard/wizard-shell";
 import { AddOnsClient } from "./addons-client";
 
@@ -25,7 +26,12 @@ export default async function AddonsPage({
   const stateInfo = INDIAN_STATES.find(
     (s) => s.value === parsed.property?.state,
   );
-  const defaultStampDuty = stateInfo?.stampDuty ?? 100;
+  const stamp = computeStampDuty({
+    state: parsed.property?.state ?? "",
+    durationMonths: parsed.terms?.durationMonths ?? 0,
+    monthlyRent: parsed.terms?.monthlyRent ?? 0,
+    securityDeposit: parsed.terms?.securityDeposit ?? 0,
+  });
 
   const isUploadDraft =
     parsed.agreement.wizardEntry === WIZARD_ENTRY_UPLOAD_DRAFT;
@@ -33,11 +39,12 @@ export default async function AddonsPage({
   const client = (
     <AddOnsClient
       agreementId={params.id}
-      defaultStampDuty={defaultStampDuty}
+      defaultStampDuty={stamp.stampValue}
       stateLabel={stateInfo?.label ?? "your state"}
       tenantFullName={checkoutContactDisplayName(parsed)}
       city={parsed.property?.city ?? ""}
-      currentStampValue={parsed.agreement.stampValue ?? defaultStampDuty}
+      currentStampValue={stamp.stampValue}
+      stampFormula={stamp.formula}
       summaryBackHref={
         isUploadDraft
           ? `/agreement/${params.id}/draft`

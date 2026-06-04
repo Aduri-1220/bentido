@@ -24,18 +24,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   computeTotal,
   extraCopyUnitPrice,
   type DeliveryMethod,
 } from "@/lib/pricing";
-import { STAMP_DENOMINATIONS } from "@/lib/constants";
 import { formatINR, cn } from "@/lib/utils";
 
 interface Props {
@@ -45,6 +37,7 @@ interface Props {
   tenantFullName: string;
   city: string;
   currentStampValue: number;
+  stampFormula: string;
   summaryBackHref?: string;
   pageTitle?: string;
   pageSubtitle?: string;
@@ -52,11 +45,12 @@ interface Props {
 
 export function AddOnsClient({
   agreementId,
-  defaultStampDuty,
+  defaultStampDuty: _defaultStampDuty,
   stateLabel,
   tenantFullName,
   city,
   currentStampValue,
+  stampFormula,
   summaryBackHref,
   pageTitle = "Add-ons & delivery",
   pageSubtitle = "Pick what you need. The order summary on the right updates live.",
@@ -67,7 +61,7 @@ export function AddOnsClient({
   const [notary, setNotary] = useState(false);
   const [delivery, setDelivery] = useState<DeliveryMethod>("STANDARD");
   const [extraCopies, setExtraCopies] = useState(0);
-  const [stampValue, setStampValue] = useState<number>(currentStampValue);
+  const stampValue = currentStampValue;
   const [deliveryAddress, setDeliveryAddress] = useState<string>(
     tenantFullName ? `${tenantFullName}, ${city}` : "",
   );
@@ -110,7 +104,6 @@ export function AddOnsClient({
             delivery === "DIGITAL" || delivery === "SCANNED_ONLINE"
               ? undefined
               : deliveryAddress,
-          stampValue,
         }),
       });
       if (!res.ok) throw new Error();
@@ -144,32 +137,17 @@ export function AddOnsClient({
           <Card>
             <CardHeader
               icon={Stamp}
-              title="Stamp paper denomination"
-              subtitle={`Recommended for ${stateLabel}: ${formatINR(defaultStampDuty)}`}
+              title="Stamp duty"
+              subtitle={`Calculated per ${stateLabel} Stamp Act for your rent, deposit and lease duration.`}
             />
-            <div className="mt-4">
-              <Select
-                value={String(stampValue)}
-                onValueChange={(v) => setStampValue(Number(v))}
-              >
-                <SelectTrigger className="md:max-w-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.from(
-                    new Set([...STAMP_DENOMINATIONS, defaultStampDuty]),
-                  )
-                    .sort((a, b) => a - b)
-                    .map((d) => (
-                      <SelectItem key={d} value={String(d)}>
-                        {formatINR(d)}
-                        {d === defaultStampDuty && " — recommended"}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-              <p className="mt-2 text-xs text-slate-500">
-                Stamp duty is a government fee — charged at cost, with no GST.
+            <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <div className="text-2xl font-semibold text-slate-900">
+                {formatINR(stampValue)}
+              </div>
+              <p className="mt-1 text-xs text-slate-600">{stampFormula}</p>
+              <p className="mt-3 text-xs text-slate-500">
+                Stamp duty is a government tax paid to the State — charged at
+                cost, with no GST or markup.
               </p>
             </div>
           </Card>

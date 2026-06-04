@@ -335,11 +335,25 @@ export const termsSchema = z
     paymentMode: requiredString("Payment mode is required"),
     /** Upload-checkout flow: user wants wizard fields to override the PDF. */
     uploadOverridesRequested: z.boolean().optional(),
+    /**
+     * Required true when durationMonths > 11. Acknowledges that bentido will
+     * not register the agreement at the Sub-Registrar Office — registration
+     * is optional and pursued separately if needed.
+     */
+    acknowledgesNoRegistration: z.boolean().optional().default(false),
   })
   .refine((d) => d.lockInMonths <= d.durationMonths, {
     path: ["lockInMonths"],
     message: "Lock-in cannot exceed total duration",
-  });
+  })
+  .refine(
+    (d) => d.durationMonths <= 11 || d.acknowledgesNoRegistration === true,
+    {
+      path: ["acknowledgesNoRegistration"],
+      message:
+        "Please acknowledge that the agreement will not be registered at SRO",
+    },
+  );
 export type TermsData = z.infer<typeof termsSchema>;
 
 export const clauseEntrySchema = z.object({

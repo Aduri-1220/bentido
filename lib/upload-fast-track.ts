@@ -142,6 +142,7 @@ export function buildUploadFastTrackPayload(input: UploadFastTrackInput): {
     durationMonths: 11,
     lockInMonths: 0,
     noticePeriodMonths: 1,
+    acknowledgesNoRegistration: false,
     startDate: input.startDate,
     incrementPercent: 0,
     rentDueDay: 1,
