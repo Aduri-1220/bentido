@@ -10,6 +10,7 @@ import { DraftDocument } from "@/components/agreement/draft-document";
 import { AdminWorkflowAdvance } from "@/components/admin/admin-workflow-advance";
 import { deliveryUsesExecutedCopyUpload } from "@/lib/delivery-executed-copy";
 import { AdminScannedCopyUpload } from "@/components/admin/admin-scanned-copy-upload";
+import { TrackingIdEditor } from "@/components/admin/tracking-id-editor";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -189,11 +190,17 @@ export default async function WorkerAgreementDetailPage({
                   label="Address"
                   value={agreement.delivery.address ?? "—"}
                 />
-                <Row
-                  label="Tracking"
-                  value={agreement.delivery.trackingId ?? "—"}
-                  mono
-                />
+                <div className="flex items-start justify-between gap-3 py-1">
+                  <span className="shrink-0 pt-1.5 text-xs font-medium uppercase tracking-wide text-slate-500">
+                    Tracking
+                  </span>
+                  <div className="flex-1">
+                    <TrackingIdEditor
+                      agreementId={params.id}
+                      initial={agreement.delivery.trackingId ?? null}
+                    />
+                  </div>
+                </div>
               </>
             ) : (
               <p className="text-slate-600">No delivery selection saved.</p>
