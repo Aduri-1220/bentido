@@ -29,6 +29,18 @@ export default async function AdminLayout({
             All agreements
           </Link>
           <Link
+            href="/admin/procurement"
+            className="font-medium text-slate-600 hover:text-brand-700"
+          >
+            Stamp procurement
+          </Link>
+          <Link
+            href="/admin/notary"
+            className="font-medium text-slate-600 hover:text-brand-700"
+          >
+            Notary queue
+          </Link>
+          <Link
             href="/dashboard"
             className="font-medium text-brand-700 hover:underline"
           >

@@ -19,7 +19,7 @@ import { Field } from "@/components/wizard/field";
 import { NavButtons } from "@/components/wizard/nav-buttons";
 import { persistStep } from "@/components/wizard/persist";
 import { tenantSchema, type TenantData, normalizePanInput } from "@/lib/schemas";
-import { INDIAN_STATES } from "@/lib/constants";
+import { LAUNCH_STATES } from "@/lib/constants";
 
 export function TenantForm({
   agreementId,
@@ -205,7 +205,7 @@ export function TenantForm({
                   <SelectValue placeholder="State" />
                 </SelectTrigger>
                 <SelectContent>
-                  {INDIAN_STATES.map((s) => (
+                  {LAUNCH_STATES.map((s) => (
                     <SelectItem key={s.value} value={s.value}>
                       {s.label}
                     </SelectItem>

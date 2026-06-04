@@ -24,7 +24,7 @@ import {
   BHK_OPTIONS,
   COMMERCIAL_FURNISHING_OPTIONS,
   FURNISHING_OPTIONS,
-  INDIAN_STATES,
+  LAUNCH_STATES,
   PROPERTY_TYPES,
 } from "@/lib/constants";
 import {
@@ -452,7 +452,7 @@ export function PropertyForm({
                 <SelectValue placeholder="Select state" />
               </SelectTrigger>
               <SelectContent>
-                {INDIAN_STATES.map((s) => (
+                {LAUNCH_STATES.map((s) => (
                   <SelectItem key={s.value} value={s.value}>
                     {s.label}
                   </SelectItem>

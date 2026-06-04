@@ -1,5 +1,16 @@
 import { z } from "zod";
-import { INDIAN_STATES, STAMP_DENOMINATIONS } from "./constants";
+import { LAUNCH_STATE_VALUES, STAMP_DENOMINATIONS } from "./constants";
+
+const launchStateError =
+  "We currently serve Telangana, Andhra Pradesh, Karnataka, and Tamil Nadu only";
+
+const launchStateSchema = z
+  .string()
+  .min(1, "State is required")
+  .refine(
+    (v) => (LAUNCH_STATE_VALUES as readonly string[]).includes(v),
+    launchStateError,
+  );
 import {
   amenitiesForPropertyCategory,
   getPropertyTypeCategory,
@@ -46,7 +57,7 @@ export const propertySchema = z
     addressLine2: z.string().optional().default(""),
     locality: requiredString("Locality is required"),
     city: requiredString("City is required"),
-    state: requiredString("State is required"),
+    state: launchStateSchema,
     pincode: z.string().regex(/^\d{6}$/, "Enter a valid 6-digit PIN code"),
     carpetArea: z.preprocess(
       emptyNumberToUndefined,
@@ -275,7 +286,7 @@ const partySchema = z.object({
   email: z.string().email("Enter a valid email"),
   addressLine1: requiredString("Address is required"),
   city: requiredString("City is required"),
-  state: requiredString("State is required"),
+  state: launchStateSchema,
   pincode: z.string().regex(/^\d{6}$/, "Valid 6-digit PIN"),
 });
 
@@ -381,13 +392,7 @@ const fastTrackPincode = z
 
 export const uploadFastTrackStep1Schema = z.object({
   city: requiredString("City is required"),
-  state: z
-    .string()
-    .min(1, "State is required")
-    .refine(
-      (v) => INDIAN_STATES.some((s) => s.value === v),
-      "Pick a valid state",
-    ),
+  state: launchStateSchema,
   propertyPincode: fastTrackPincode,
   uploadOverridesRequested: z.boolean(),
   securityDeposit: z.coerce

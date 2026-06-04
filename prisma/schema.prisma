@@ -123,6 +123,9 @@ model AddOn {
   kind        String // ESIGN | NOTARY | EXTRA_COPY
   qty         Int    @default(1)
   unitPrice   Int // in rupees
+  /// Admin marks this when the off-platform work (notary visit, extra-copy print)
+  /// is fulfilled. Used by the admin notary queue to filter pending vs done.
+  completedAt DateTime?
   agreement   Agreement @relation(fields: [agreementId], references: [id], onDelete: Cascade)
 
   @@index([agreementId])

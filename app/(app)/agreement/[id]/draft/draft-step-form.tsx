@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { INDIAN_STATES, STAMP_DENOMINATIONS } from "@/lib/constants";
+import { LAUNCH_STATES, STAMP_DENOMINATIONS } from "@/lib/constants";
 import {
   uploadFastTrackStep1Schema,
   type UploadFastTrackStep1Data,
@@ -301,7 +301,7 @@ function UploadDraftCheckoutForm({
                     <SelectValue placeholder="Select state" />
                   </SelectTrigger>
                   <SelectContent>
-                    {INDIAN_STATES.map((s) => (
+                    {LAUNCH_STATES.map((s) => (
                       <SelectItem key={s.value} value={s.value}>
                         {s.label}
                       </SelectItem>

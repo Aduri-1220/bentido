@@ -17,7 +17,7 @@ import { Field } from "@/components/wizard/field";
 import { NavButtons } from "@/components/wizard/nav-buttons";
 import { persistStep } from "@/components/wizard/persist";
 import { ownerSchema, type OwnerData, normalizePanInput } from "@/lib/schemas";
-import { INDIAN_STATES } from "@/lib/constants";
+import { LAUNCH_STATES } from "@/lib/constants";
 import {
   AadhaarVerifyWidget,
   type KycStatus,
@@ -277,7 +277,7 @@ export function PartyForm({
                   <SelectValue placeholder="State" />
                 </SelectTrigger>
                 <SelectContent>
-                  {INDIAN_STATES.map((s) => (
+                  {LAUNCH_STATES.map((s) => (
                     <SelectItem key={s.value} value={s.value}>
                       {s.label}
                     </SelectItem>

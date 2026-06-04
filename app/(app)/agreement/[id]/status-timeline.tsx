@@ -73,7 +73,7 @@ export function StatusTimeline({
           variant="outline"
           size="sm"
           onClick={() =>
-            window.open(`/agreement/${agreementId}/preview`, "_blank")
+            window.open(`/api/agreements/${agreementId}/pdf`, "_blank")
           }
         >
           <Download className="h-4 w-4" />

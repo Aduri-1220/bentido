@@ -34,6 +34,21 @@ export const INDIAN_STATES: {
   { value: "west-bengal", label: "West Bengal", stampDuty: 100 },
 ];
 
+/// States bentido currently serves end-to-end (vendor + notary network live).
+/// Wizard dropdowns and schema validation restrict to these; admin and PDF
+/// label lookups continue to use INDIAN_STATES so legacy agreements still
+/// render correctly if we ever expand later.
+export const LAUNCH_STATE_VALUES = [
+  "telangana",
+  "andhra-pradesh",
+  "karnataka",
+  "tamil-nadu",
+] as const;
+
+export const LAUNCH_STATES = INDIAN_STATES.filter((s) =>
+  (LAUNCH_STATE_VALUES as readonly string[]).includes(s.value),
+);
+
 export const STAMP_DENOMINATIONS = [100, 200, 300, 500, 1000];
 
 export const PROPERTY_TYPES = [
