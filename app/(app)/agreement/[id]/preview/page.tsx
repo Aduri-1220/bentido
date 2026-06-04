@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { loadAgreement, firstIncompleteWizardStep } from "@/lib/agreement";
 import { DraftDocument } from "@/components/agreement/draft-document";
+import { CounterpartyInviteCard } from "@/components/agreement/counterparty-invite-card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { WIZARD_ENTRY_UPLOAD_DRAFT } from "@/lib/constants";
@@ -104,6 +105,24 @@ export default async function PreviewPage({
           </span>
         </div>
       ) : null}
+
+      <div className="mb-6">
+        <CounterpartyInviteCard
+          agreementId={params.id}
+          status={
+            (parsed.agreement.counterpartyApprovalStatus as
+              | "PENDING"
+              | "APPROVED"
+              | "CHANGES_REQUESTED"
+              | null) ?? "NONE"
+          }
+          tenantEmail={parsed.tenant?.email ?? null}
+          inviteSentAt={
+            parsed.agreement.counterpartyInviteSentAt?.toISOString() ?? null
+          }
+          changesComment={parsed.agreement.counterpartyChangesComment ?? null}
+        />
+      </div>
 
       <DraftDocument agreementId={params.id} {...data} />
 

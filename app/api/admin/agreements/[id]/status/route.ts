@@ -8,6 +8,7 @@ import {
 } from "@/lib/agreement-status";
 import { auditContextFromRequest, recordAuditEvent } from "@/lib/audit-log";
 import { prisma } from "@/lib/db";
+import { notifyAgreementEvent } from "@/lib/notifications";
 import { getCurrentUser } from "@/lib/session";
 import { staffAgreementAccessForUserId } from "@/lib/staff-agreement-access";
 
@@ -76,6 +77,12 @@ export async function POST(
     ip: ctx.ip,
     userAgent: ctx.userAgent,
   });
+
+  if (current === "E_SIGNING" && parsed.data.status === "DELIVERY") {
+    await notifyAgreementEvent("esign.completed", params.id);
+  } else if (parsed.data.status === "COMPLETED") {
+    await notifyAgreementEvent("agreement.completed", params.id);
+  }
 
   return NextResponse.json({ agreement: updated });
 }

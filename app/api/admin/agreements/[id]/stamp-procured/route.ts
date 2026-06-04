@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auditContextFromRequest, recordAuditEvent } from "@/lib/audit-log";
 import { prisma } from "@/lib/db";
+import { notifyAgreementEvent } from "@/lib/notifications";
 import { getCurrentUser } from "@/lib/session";
 import { staffAgreementAccessForUserId } from "@/lib/staff-agreement-access";
 
@@ -48,6 +49,8 @@ export async function POST(
     ip: ctx.ip,
     userAgent: ctx.userAgent,
   });
+
+  await notifyAgreementEvent("stamp.procured", params.id);
 
   return NextResponse.json({ agreement: updated });
 }

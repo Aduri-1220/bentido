@@ -8,6 +8,7 @@ import {
 } from "@/lib/agreement-status";
 import { auditContextFromRequest, recordAuditEvent } from "@/lib/audit-log";
 import { prisma } from "@/lib/db";
+import { notifyAgreementEvent } from "@/lib/notifications";
 import { enforceUserRateLimit } from "@/lib/rate-limit";
 import { getCurrentUser } from "@/lib/session";
 
@@ -92,5 +93,19 @@ export async function POST(
     userAgent: ctx.userAgent,
   });
 
+  await fireStatusNotification(current, parsed.data.status, params.id);
+
   return NextResponse.json({ agreement: updated });
+}
+
+async function fireStatusNotification(
+  before: string,
+  after: string,
+  agreementId: string,
+): Promise<void> {
+  if (before === "E_SIGNING" && after === "DELIVERY") {
+    await notifyAgreementEvent("esign.completed", agreementId);
+  } else if (after === "COMPLETED") {
+    await notifyAgreementEvent("agreement.completed", agreementId);
+  }
 }

@@ -102,6 +102,15 @@ model Agreement {
   sourceDraftR2Key        String?
   /// True when user continues without uploading (first wizard step completed).
   sourceDraftSkipped      Boolean  @default(false)
+  /// Two-party invite: counterparty (tenant when owner initiates) reviews the
+  /// draft via a tokenised public link before owner can pay. NULL until the
+  /// owner first sends an invite. APPROVED unblocks the payment route.
+  counterpartyApprovalStatus String?    // PENDING | APPROVED | CHANGES_REQUESTED
+  counterpartyInviteTokenHash String?   @unique
+  counterpartyInviteSentAt    DateTime?
+  counterpartyInviteExpiresAt DateTime?
+  counterpartyChangesComment  String?
+  counterpartyRespondedAt     DateTime?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   deletedAt      DateTime? // Soft delete timestamp

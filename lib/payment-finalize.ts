@@ -3,6 +3,7 @@ import {
   parseAgreementStatus,
 } from "@/lib/agreement-status";
 import { prisma } from "@/lib/db";
+import { notifyAgreementEvent } from "@/lib/notifications";
 
 /**
  * Mark a Razorpay payment captured for an agreement after signature / webhook checks.
@@ -53,6 +54,10 @@ export async function finalizeRazorpayCapturedPayment(input: {
       });
     }
   });
+
+  if (nextAgreementStatus === "PAID") {
+    await notifyAgreementEvent("payment.succeeded", input.agreementId);
+  }
 
   return { ok: true };
 }

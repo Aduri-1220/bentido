@@ -78,6 +78,20 @@ export async function POST(
   if (!agreement)
     return NextResponse.json({ error: "Not found" }, { status: 404 });
 
+  if (
+    agreement.payment?.status !== "SUCCESS" &&
+    agreement.counterpartyApprovalStatus !== "APPROVED"
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          "Tenant approval is required before payment. Send the review invite from the preview screen.",
+        code: "COUNTERPARTY_NOT_APPROVED",
+      },
+      { status: 409 },
+    );
+  }
+
   if (agreement.payment?.status === "SUCCESS") {
     return NextResponse.json({
       ok: true,
