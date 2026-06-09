@@ -15,7 +15,7 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const agreements = await prisma.agreement.findMany({
-    where: { userId: user.id },
+    where: { userId: user.id, deletedAt: null },
     orderBy: { updatedAt: "desc" },
     include: { addOns: true, delivery: true, payment: true },
   });

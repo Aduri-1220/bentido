@@ -29,7 +29,7 @@ export interface ParsedAgreement {
 export async function loadAgreement(id: string): Promise<ParsedAgreement> {
   const user = await requireUser();
   const agreement = await prisma.agreement.findFirst({
-    where: { id, userId: user.id },
+    where: { id, userId: user.id, deletedAt: null },
   });
   if (!agreement) notFound();
   return {

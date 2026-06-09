@@ -24,6 +24,11 @@ function addRequestId(res: NextResponse, requestId: string): NextResponse {
 const RATE: Record<string, { prefix: string; max: number; windowSec: number }> =
   {
     "/api/sign-up": { prefix: "signup", max: 20, windowSec: 3600 },
+    "/api/auth/callback/credentials": {
+      prefix: "signin",
+      max: 10,
+      windowSec: 900,
+    },
     "/api/auth/forgot-password": { prefix: "forgot", max: 8, windowSec: 3600 },
     "/api/auth/resend-verification": {
       prefix: "resend",
@@ -96,6 +101,7 @@ export const config = {
     "/onboarding",
     "/onboarding/:path*",
     "/api/sign-up",
+    "/api/auth/callback/credentials",
     "/api/auth/forgot-password",
     "/api/auth/resend-verification",
     "/api/auth/reset-password",

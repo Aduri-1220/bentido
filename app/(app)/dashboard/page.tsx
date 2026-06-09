@@ -25,7 +25,7 @@ export default async function DashboardPage() {
   }
 
   const agreements = await prisma.agreement.findMany({
-    where: { userId: user.id },
+    where: { userId: user.id, deletedAt: null },
     orderBy: { updatedAt: "desc" },
     select: {
       id: true,

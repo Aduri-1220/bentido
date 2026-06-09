@@ -16,7 +16,10 @@ const lora = Lora({
   display: "swap",
 });
 
+const siteUrl = process.env.NEXTAUTH_URL ?? "https://bentido.in";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
     default: "bentido — Rental agreements, sorted in minutes",
     template: "%s · bentido",
@@ -31,6 +34,26 @@ export const metadata: Metadata = {
     "notary",
     "India",
   ],
+  applicationName: "bentido",
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    url: siteUrl,
+    siteName: "bentido",
+    title: "bentido — Rental agreements, sorted in minutes",
+    description:
+      "Verified KYC, structured rental drafts, e-stamp and e-sign — without the broker runaround.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "bentido — Rental agreements, sorted in minutes",
+    description:
+      "Verified KYC, structured rental drafts, e-stamp and e-sign — without the broker runaround.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({

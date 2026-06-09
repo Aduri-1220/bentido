@@ -41,6 +41,12 @@ export default async function AdminLayout({
             Notary queue
           </Link>
           <Link
+            href="/admin/audit-log"
+            className="font-medium text-slate-600 hover:text-brand-700"
+          >
+            Audit log
+          </Link>
+          <Link
             href="/dashboard"
             className="font-medium text-brand-700 hover:underline"
           >

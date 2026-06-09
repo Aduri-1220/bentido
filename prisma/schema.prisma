@@ -124,6 +124,10 @@ model Agreement {
 
   @@index([userId])
   @@index([status])
+  // Covers dashboard + agreement-list queries: WHERE userId = ? ORDER BY updatedAt DESC
+  @@index([userId, updatedAt])
+  // Covers admin/worker list: ORDER BY updatedAt DESC (no userId filter)
+  @@index([updatedAt])
 }
 
 model AddOn {

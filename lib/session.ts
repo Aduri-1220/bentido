@@ -16,11 +16,18 @@ export async function getCurrentUser(): Promise<
 
   let id = (session.user as { id?: string }).id;
   if (!id) {
-    const row = await prisma.user.findUnique({
-      where: { email },
+    const row = await prisma.user.findFirst({
+      where: { email, deletedAt: null },
       select: { id: true },
     });
     id = row?.id;
+  } else {
+    // Verify the JWT-carried id still maps to a live user (handles deletion mid-session).
+    const row = await prisma.user.findFirst({
+      where: { id, deletedAt: null },
+      select: { id: true },
+    });
+    if (!row) return null;
   }
   if (!id) return null;
 

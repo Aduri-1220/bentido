@@ -24,8 +24,8 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials.password) return null;
         const email = credentials.email.toLowerCase().trim();
-        const user = await prisma.user.findUnique({
-          where: { email },
+        const user = await prisma.user.findFirst({
+          where: { email, deletedAt: null },
         });
         if (!user || !user.passwordHash) return null;
         const ok = await bcrypt.compare(
@@ -103,6 +103,7 @@ export const authOptions: NextAuthOptions = {
         dbUser = await prisma.user.findFirst({
           where: {
             email: { equals: rawEmail, mode: "insensitive" },
+            deletedAt: null,
           },
           select: {
             id: true,
@@ -114,8 +115,8 @@ export const authOptions: NextAuthOptions = {
       }
 
       if (!dbUser && typeof token.id === "string") {
-        dbUser = await prisma.user.findUnique({
-          where: { id: token.id },
+        dbUser = await prisma.user.findFirst({
+          where: { id: token.id, deletedAt: null },
           select: {
             id: true,
             role: true,
