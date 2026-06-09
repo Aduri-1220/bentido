@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = process.env.NEXTAUTH_URL ?? "https://bentido.in";
+  const base = process.env.NEXTAUTH_URL ?? "https://bentido.com";
   const now = new Date();
 
   return [

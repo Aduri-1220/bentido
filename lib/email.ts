@@ -9,7 +9,7 @@ type SendEmailInput = {
  * Sends email via Resend when RESEND_API_KEY is set; otherwise logs and skips delivery.
  */
 export async function sendEmail({ to, subject, html, text }: SendEmailInput) {
-  const from = process.env.EMAIL_FROM ?? "bentido <onboarding@resend.dev>";
+  const from = process.env.EMAIL_FROM ?? "bentido <noreply@bentido.com>";
 
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {

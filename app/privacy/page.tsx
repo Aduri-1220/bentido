@@ -272,10 +272,10 @@ export default function PrivacyPolicyPage() {
           <li>
             <strong>Email:</strong>{" "}
             <a
-              href="mailto:support@bentido.in"
+              href="mailto:support@bentido.com"
               className="font-medium text-brand-700 underline"
             >
-              support@bentido.in
+              support@bentido.com
             </a>
           </li>
         </ul>

@@ -23,7 +23,7 @@ export function SiteFooter() {
           <a href="#" className="hover:text-stone-800">
             Terms
           </a>
-          <a href="mailto:support@bentido.in" className="hover:text-stone-800">
+          <a href="mailto:support@bentido.com" className="hover:text-stone-800">
             Contact
           </a>
           <Link

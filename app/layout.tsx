@@ -16,7 +16,7 @@ const lora = Lora({
   display: "swap",
 });
 
-const siteUrl = process.env.NEXTAUTH_URL ?? "https://bentido.in";
+const siteUrl = process.env.NEXTAUTH_URL ?? "https://bentido.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
