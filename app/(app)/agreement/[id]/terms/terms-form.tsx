@@ -147,12 +147,12 @@ export function TermsForm({
                 </p>
                 <p className="mt-1 text-amber-900/90">
                   bentido will stamp the agreement under the applicable State
-                  Stamp Act and have all parties sign it with Aadhaar eSign.
-                  We do not register the agreement at the Sub-Registrar
-                  Office. The agreement remains valid and binding between
-                  parties and is admissible for collateral purposes in court.
-                  If you need registration for full enforcement, you can
-                  pursue it separately at your local SRO.
+                  Stamp Act and have all parties sign it with Aadhaar eSign. We
+                  do not register the agreement at the Sub-Registrar Office. The
+                  agreement remains valid and binding between parties and is
+                  admissible for collateral purposes in court. If you need
+                  registration for full enforcement, you can pursue it
+                  separately at your local SRO.
                 </p>
                 <label className="mt-3 flex items-start gap-2 text-amber-900">
                   <input

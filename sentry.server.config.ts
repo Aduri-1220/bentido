@@ -51,7 +51,8 @@ function scrubEvent(event: ErrorEvent, _hint: EventHint): ErrorEvent {
       event.request.headers = headers;
     }
     if (event.request.cookies) {
-      event.request.cookies = REDACTED as unknown as typeof event.request.cookies;
+      event.request.cookies =
+        REDACTED as unknown as typeof event.request.cookies;
     }
     if (event.request.data && typeof event.request.data === "object") {
       event.request.data = scrubObject(

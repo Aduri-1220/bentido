@@ -148,9 +148,7 @@ function SignInForm() {
         {postLoginPath === "/admin" || postLoginPath === "/worker" ? (
           <p className="mt-4 rounded-lg border border-brand-200 bg-brand-50 px-3 py-2 text-xs text-brand-900">
             Staff sign-in: after authentication you&apos;ll continue to the{" "}
-            <strong>
-              {postLoginPath === "/admin" ? "admin" : "worker"}
-            </strong>{" "}
+            <strong>{postLoginPath === "/admin" ? "admin" : "worker"}</strong>{" "}
             dashboard.
           </p>
         ) : null}

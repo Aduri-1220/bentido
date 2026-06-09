@@ -18,8 +18,12 @@ export default async function ProcurementIndexPage() {
     countsByState.set(state, (countsByState.get(state) ?? 0) + 1);
   }
   const total = pending.length;
-  const unknown = pending.length -
-    LAUNCH_STATES.reduce((sum, s) => sum + (countsByState.get(s.value) ?? 0), 0);
+  const unknown =
+    pending.length -
+    LAUNCH_STATES.reduce(
+      (sum, s) => sum + (countsByState.get(s.value) ?? 0),
+      0,
+    );
 
   return (
     <div>
@@ -48,9 +52,7 @@ export default async function ProcurementIndexPage() {
               className="group flex items-center justify-between rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-colors hover:border-brand-300 hover:bg-brand-50/40"
             >
               <div>
-                <p className="text-sm font-medium text-slate-500">
-                  {s.label}
-                </p>
+                <p className="text-sm font-medium text-slate-500">{s.label}</p>
                 <p className="mt-1 text-3xl font-bold tabular-nums text-slate-900">
                   {count}
                 </p>

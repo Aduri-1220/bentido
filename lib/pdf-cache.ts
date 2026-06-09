@@ -13,7 +13,9 @@ const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
  * If the PDF was generated within the last 5 minutes, return the cached version.
  * Otherwise, regenerate it.
  */
-export async function generateAgreementPdfCached(agreementId: string): Promise<string> {
+export async function generateAgreementPdfCached(
+  agreementId: string,
+): Promise<string> {
   const cached = pdfCache.get(agreementId);
   const now = Date.now();
 

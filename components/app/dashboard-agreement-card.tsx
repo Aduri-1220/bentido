@@ -29,12 +29,7 @@ export function DashboardAgreementCard({
   async function onDelete(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
-    if (
-      !window.confirm(
-        "Delete this draft? This cannot be undone.",
-      )
-    )
-      return;
+    if (!window.confirm("Delete this draft? This cannot be undone.")) return;
     setDeleting(true);
     try {
       const res = await fetch(`/api/agreements/${id}`, { method: "DELETE" });

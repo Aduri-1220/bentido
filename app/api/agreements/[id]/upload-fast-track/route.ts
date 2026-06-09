@@ -3,11 +3,7 @@ import { WIZARD_ENTRY_UPLOAD_DRAFT } from "@/lib/constants";
 import { prisma } from "@/lib/db";
 import { validateUploadedDoc } from "@/lib/file-validation";
 import { logger } from "@/lib/logger";
-import {
-  r2DeleteObject,
-  r2KeyForSourceDraft,
-  r2PutObject,
-} from "@/lib/r2";
+import { r2DeleteObject, r2KeyForSourceDraft, r2PutObject } from "@/lib/r2";
 import { enforceUserRateLimit } from "@/lib/rate-limit";
 import { uploadFastTrackStep1Schema } from "@/lib/schemas";
 import { getCurrentUser } from "@/lib/session";

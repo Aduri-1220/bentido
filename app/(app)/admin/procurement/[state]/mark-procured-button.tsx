@@ -33,12 +33,7 @@ export function MarkProcuredButton({ agreementId }: { agreementId: string }) {
   }
 
   return (
-    <Button
-      onClick={mark}
-      disabled={loading}
-      variant="brand"
-      size="sm"
-    >
+    <Button onClick={mark} disabled={loading} variant="brand" size="sm">
       {loading ? (
         <Loader2 className="h-4 w-4 animate-spin" />
       ) : (

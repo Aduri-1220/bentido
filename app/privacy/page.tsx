@@ -12,16 +12,15 @@ export default function PrivacyPolicyPage() {
     <LegalPageShell title="Privacy Policy" lastUpdated="18 May 2026">
       <section className="space-y-3">
         <p>
-          This Privacy Policy describes how{" "}
-          <strong>bentido</strong> (“
-          <strong>we</strong>”, “<strong>us</strong>” or “
-          <strong>our</strong>”) handles personal data when you use the
-          bentido website, web application, and related services (together, the “
+          This Privacy Policy describes how <strong>bentido</strong> (“
+          <strong>we</strong>”, “<strong>us</strong>” or “<strong>our</strong>”)
+          handles personal data when you use the bentido website, web
+          application, and related services (together, the “
           <strong>Platform</strong>”) that help landlords, tenants, and
           intermediaries prepare, pay for, and complete rental/lease agreement
           workflows — including structured drafting, optional document upload,
-          add-ons (such as e-stamp and e-sign coordination), online payments, and
-          delivery of executed documents (“<strong>Services</strong>”).
+          add-ons (such as e-stamp and e-sign coordination), online payments,
+          and delivery of executed documents (“<strong>Services</strong>”).
         </p>
         <p>
           This document is published in accordance with the Information
@@ -32,9 +31,9 @@ export default function PrivacyPolicyPage() {
           data.
         </p>
         <p>
-          “<strong>You</strong>” or “<strong>user</strong>” means any person
-          who visits the Platform, creates an account, or otherwise interacts
-          with us in connection with the Services.
+          “<strong>You</strong>” or “<strong>user</strong>” means any person who
+          visits the Platform, creates an account, or otherwise interacts with
+          us in connection with the Services.
         </p>
       </section>
 
@@ -61,16 +60,17 @@ export default function PrivacyPolicyPage() {
             generate or review a draft.
           </li>
           <li>
-            <strong>Documents and files:</strong> prior agreement drafts or other
-            files you upload (for example PDF or Word documents), and executed
-            agreement copies we may make available to you after fulfilment.
+            <strong>Documents and files:</strong> prior agreement drafts or
+            other files you upload (for example PDF or Word documents), and
+            executed agreement copies we may make available to you after
+            fulfilment.
           </li>
           <li>
             <strong>Payment information:</strong> amounts, order references, and
             payment status processed through our payment partner (
-            <strong>Razorpay</strong> or another provider we configure). We do not
-            store full card or UPI credentials on our servers; such details are
-            handled by the payment service provider under their terms and
+            <strong>Razorpay</strong> or another provider we configure). We do
+            not store full card or UPI credentials on our servers; such details
+            are handled by the payment service provider under their terms and
             applicable security standards.
           </li>
           <li>
@@ -83,8 +83,8 @@ export default function PrivacyPolicyPage() {
             (including email) and metadata necessary to respond.
           </li>
           <li>
-            <strong>Technical and usage data:</strong> server logs may include IP
-            address, device/browser type, referring URLs, timestamps, and
+            <strong>Technical and usage data:</strong> server logs may include
+            IP address, device/browser type, referring URLs, timestamps, and
             diagnostic data used to secure and operate the Platform. We may use
             cookies and similar technologies as described in our{" "}
             <a href="/cookies" className="font-medium text-brand-700 underline">
@@ -113,8 +113,8 @@ export default function PrivacyPolicyPage() {
             Authenticate users, prevent fraud, abuse, and security incidents;
           </li>
           <li>
-            Process payments, fulfil orders, and communicate status updates about
-            your agreement workflow;
+            Process payments, fulfil orders, and communicate status updates
+            about your agreement workflow;
           </li>
           <li>
             Comply with law, respond to lawful requests, and enforce our terms;
@@ -148,10 +148,10 @@ export default function PrivacyPolicyPage() {
           disclosures may occur without prior notice where the law allows.
         </p>
         <p>
-          If we are involved in a merger, acquisition, financing, reorganisation,
-          or sale of assets, personal data may be transferred as part of that
-          transaction, subject to appropriate safeguards and notice where
-          required.
+          If we are involved in a merger, acquisition, financing,
+          reorganisation, or sale of assets, personal data may be transferred as
+          part of that transaction, subject to appropriate safeguards and notice
+          where required.
         </p>
       </section>
 
@@ -187,8 +187,8 @@ export default function PrivacyPolicyPage() {
         </h2>
         <p>
           We implement administrative, technical, and organisational measures
-          designed to protect personal data against unauthorised access, loss, or
-          misuse. No method of transmission over the Internet is completely
+          designed to protect personal data against unauthorised access, loss,
+          or misuse. No method of transmission over the Internet is completely
           secure; you use the Platform at your own risk to that extent. If we
           become aware of a breach that materially affects personal data we hold
           about you, we will notify you where the law requires and work to
@@ -221,8 +221,8 @@ export default function PrivacyPolicyPage() {
         <p>
           The Platform may link to third-party websites or services (including
           payment and identity providers). Their privacy practices are governed
-          by their own policies; we encourage you to read them before
-          submitting information.
+          by their own policies; we encourage you to read them before submitting
+          information.
         </p>
       </section>
 
@@ -232,8 +232,8 @@ export default function PrivacyPolicyPage() {
         </h2>
         <p>
           We use cookies and similar technologies for essential operation,
-          preferences, analytics, and (where enabled) advertising. Details appear
-          in our{" "}
+          preferences, analytics, and (where enabled) advertising. Details
+          appear in our{" "}
           <a href="/cookies" className="font-medium text-brand-700 underline">
             Cookie Policy
           </a>

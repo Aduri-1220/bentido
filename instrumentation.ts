@@ -4,9 +4,8 @@
  */
 export async function register() {
   if (process.env.NEXT_RUNTIME === "nodejs") {
-    const { assertPaymentProviderSafeForEnvironment } = await import(
-      "@/lib/payment-config"
-    );
+    const { assertPaymentProviderSafeForEnvironment } =
+      await import("@/lib/payment-config");
     assertPaymentProviderSafeForEnvironment();
 
     if (process.env.SENTRY_DSN) {

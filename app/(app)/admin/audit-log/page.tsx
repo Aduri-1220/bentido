@@ -51,7 +51,12 @@ export default async function AuditLogPage({
 
   function buildHref(overrides: Record<string, string | undefined>) {
     const params = new URLSearchParams();
-    const merged = { page: String(page), action: filterAction, agreementId: filterAgreementId, ...overrides };
+    const merged = {
+      page: String(page),
+      action: filterAction,
+      agreementId: filterAgreementId,
+      ...overrides,
+    };
     for (const [k, v] of Object.entries(merged)) {
       if (v) params.set(k, v);
     }
@@ -67,7 +72,11 @@ export default async function AuditLogPage({
             ({total.toLocaleString()} entries)
           </span>
         </h2>
-        <form method="GET" action="/admin/audit-log" className="flex flex-wrap gap-2">
+        <form
+          method="GET"
+          action="/admin/audit-log"
+          className="flex flex-wrap gap-2"
+        >
           <input
             name="action"
             defaultValue={filterAction ?? ""}
@@ -101,17 +110,30 @@ export default async function AuditLogPage({
         <table className="min-w-full divide-y divide-slate-200 text-sm">
           <thead className="bg-slate-50">
             <tr>
-              <th className="px-4 py-3 text-left font-medium text-slate-600">Time</th>
-              <th className="px-4 py-3 text-left font-medium text-slate-600">Actor</th>
-              <th className="px-4 py-3 text-left font-medium text-slate-600">Action</th>
-              <th className="px-4 py-3 text-left font-medium text-slate-600">Agreement</th>
-              <th className="px-4 py-3 text-left font-medium text-slate-600">IP</th>
+              <th className="px-4 py-3 text-left font-medium text-slate-600">
+                Time
+              </th>
+              <th className="px-4 py-3 text-left font-medium text-slate-600">
+                Actor
+              </th>
+              <th className="px-4 py-3 text-left font-medium text-slate-600">
+                Action
+              </th>
+              <th className="px-4 py-3 text-left font-medium text-slate-600">
+                Agreement
+              </th>
+              <th className="px-4 py-3 text-left font-medium text-slate-600">
+                IP
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 bg-white">
             {logs.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-slate-500">
+                <td
+                  colSpan={5}
+                  className="px-4 py-8 text-center text-slate-500"
+                >
                   No audit log entries found.
                 </td>
               </tr>
@@ -125,7 +147,9 @@ export default async function AuditLogPage({
                   <span className="mr-1.5 rounded bg-slate-100 px-1.5 py-0.5 text-xs font-medium text-slate-600">
                     {log.actorType}
                   </span>
-                  <span className="font-mono text-xs text-slate-700">{log.actorId}</span>
+                  <span className="font-mono text-xs text-slate-700">
+                    {log.actorId}
+                  </span>
                 </td>
                 <td className="px-4 py-2.5">
                   <Link

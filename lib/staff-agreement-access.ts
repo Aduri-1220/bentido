@@ -3,7 +3,9 @@ import { prisma } from "./db";
 import { isWorkerEmail } from "./worker";
 
 /** May call staff agreement APIs (status, source-draft download, scanned PDF upload). */
-export function hasStaffAgreementAccess(email: string | null | undefined): boolean {
+export function hasStaffAgreementAccess(
+  email: string | null | undefined,
+): boolean {
   return isAdminEmail(email) || isWorkerEmail(email);
 }
 

@@ -36,11 +36,14 @@ export function AdminScannedCopyUpload({
     try {
       const body = new FormData();
       body.append("file", file);
-      const res = await fetch(`/api/admin/agreements/${agreementId}/scanned-copy`, {
-        method: "POST",
-        body,
-        credentials: "include",
-      });
+      const res = await fetch(
+        `/api/admin/agreements/${agreementId}/scanned-copy`,
+        {
+          method: "POST",
+          body,
+          credentials: "include",
+        },
+      );
       const data = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok) {
         throw new Error(

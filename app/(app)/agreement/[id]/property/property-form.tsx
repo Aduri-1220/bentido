@@ -109,8 +109,7 @@ export function PropertyForm({
     () => getPropertyTypeCategory(propertyType),
     [propertyType],
   );
-  const isResidential =
-    category === "residential" || category === "unknown";
+  const isResidential = category === "residential" || category === "unknown";
   const isCommercial = category === "commercial";
   const isWarehouse = category === "warehouse";
   const isLandBuilding = category === "land_building";
@@ -146,7 +145,10 @@ export function PropertyForm({
     const cur = getValues("amenities") ?? [];
     const next = cur.filter((a) => allowed.has(a));
     if (next.length !== cur.length) {
-      setValue("amenities", next, { shouldValidate: false, shouldDirty: false });
+      setValue("amenities", next, {
+        shouldValidate: false,
+        shouldDirty: false,
+      });
     }
   }, [category, getValues, setValue]);
 
@@ -358,9 +360,7 @@ export function PropertyForm({
         >
           <Input
             id="floorNumber"
-            placeholder={
-              isCommercial ? "e.g. Ground, 2nd" : "e.g. 3rd"
-            }
+            placeholder={isCommercial ? "e.g. Ground, 2nd" : "e.g. 3rd"}
             {...register("floorNumber")}
           />
         </Field>
@@ -506,17 +506,15 @@ export function PropertyForm({
                 Additional amenities
               </div>
               <p className="mt-0.5 text-xs text-slate-500">
-                Optional — name anything not in the list and how many (e.g.
-                bike racks, shelves).
+                Optional — name anything not in the list and how many (e.g. bike
+                racks, shelves).
               </p>
             </div>
             <Button
               type="button"
               variant="outline"
               size="sm"
-              onClick={() =>
-                appendCustomAmenity({ item: "", units: 1 })
-              }
+              onClick={() => appendCustomAmenity({ item: "", units: 1 })}
             >
               <Plus className="h-4 w-4" />
               Add custom

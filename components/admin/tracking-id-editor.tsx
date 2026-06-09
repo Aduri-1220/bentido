@@ -21,14 +21,11 @@ export function TrackingIdEditor({
   async function save(next: string | null) {
     setBusy(true);
     try {
-      const res = await fetch(
-        `/api/admin/agreements/${agreementId}/tracking`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ trackingId: next }),
-        },
-      );
+      const res = await fetch(`/api/admin/agreements/${agreementId}/tracking`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ trackingId: next }),
+      });
       if (!res.ok) {
         const j = (await res.json().catch(() => ({}))) as { error?: string };
         throw new Error(j.error ?? "Could not save tracking ID");

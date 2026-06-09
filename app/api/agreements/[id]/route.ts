@@ -83,8 +83,7 @@ export async function DELETE(
     where: { id: params.id, userId: user.id },
     select: { status: true },
   });
-  if (!row)
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (!row) return NextResponse.json({ error: "Not found" }, { status: 404 });
   if (row.status !== "DRAFT") {
     return NextResponse.json(
       { error: "Only draft agreements can be deleted." },

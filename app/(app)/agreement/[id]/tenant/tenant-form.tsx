@@ -18,7 +18,11 @@ import {
 import { Field } from "@/components/wizard/field";
 import { NavButtons } from "@/components/wizard/nav-buttons";
 import { persistStep } from "@/components/wizard/persist";
-import { tenantSchema, type TenantData, normalizePanInput } from "@/lib/schemas";
+import {
+  tenantSchema,
+  type TenantData,
+  normalizePanInput,
+} from "@/lib/schemas";
 import { LAUNCH_STATES } from "@/lib/constants";
 
 export function TenantForm({

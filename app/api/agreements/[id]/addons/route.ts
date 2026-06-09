@@ -11,12 +11,7 @@ const bodySchema = z.object({
   esignSignatories: z.number().int().min(0).max(8),
   notary: z.boolean(),
   extraCopies: z.number().int().min(0).max(20),
-  delivery: z.enum([
-    "DIGITAL",
-    "SCANNED_ONLINE",
-    "STANDARD",
-    "EXPRESS",
-  ]),
+  delivery: z.enum(["DIGITAL", "SCANNED_ONLINE", "STANDARD", "EXPRESS"]),
   deliveryAddress: z.string().optional(),
 });
 

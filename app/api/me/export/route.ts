@@ -39,10 +39,23 @@ export async function GET(req: Request) {
         createdAt: true,
         updatedAt: true,
         addOns: {
-          select: { id: true, kind: true, qty: true, unitPrice: true, completedAt: true },
+          select: {
+            id: true,
+            kind: true,
+            qty: true,
+            unitPrice: true,
+            completedAt: true,
+          },
         },
         payment: {
-          select: { id: true, amount: true, status: true, provider: true, method: true, createdAt: true },
+          select: {
+            id: true,
+            amount: true,
+            status: true,
+            provider: true,
+            method: true,
+            createdAt: true,
+          },
         },
         delivery: {
           select: { id: true, method: true, address: true, trackingId: true },

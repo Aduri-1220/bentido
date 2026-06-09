@@ -6,11 +6,7 @@ export function validateEnv() {
 
   // Production-only required
   if (isProduction) {
-    required.push(
-      "RAZORPAY_WEBHOOK_SECRET",
-      "NEXTAUTH_URL",
-      "RESEND_API_KEY",
-    );
+    required.push("RAZORPAY_WEBHOOK_SECRET", "NEXTAUTH_URL", "RESEND_API_KEY");
   }
 
   const missing = required.filter((k) => !process.env[k]);
@@ -22,10 +18,7 @@ export function validateEnv() {
 
   // Warn about optional but recommended in prod
   if (isProduction) {
-    const recommended = [
-      "UPSTASH_REDIS_REST_URL",
-      "UPSTASH_REDIS_REST_TOKEN",
-    ];
+    const recommended = ["UPSTASH_REDIS_REST_URL", "UPSTASH_REDIS_REST_TOKEN"];
     const notSet = recommended.filter((k) => !process.env[k]);
     if (notSet.length > 0) {
       console.warn(

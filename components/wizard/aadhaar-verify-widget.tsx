@@ -88,7 +88,9 @@ export function AadhaarVerifyWidget({
       const { gatewayUrl: url } = await res.json();
       setGatewayUrl(url);
       setStatus("INITIATED");
-      toast.success("OTP sent to Aadhaar-linked mobile. Complete verification in the new tab.");
+      toast.success(
+        "OTP sent to Aadhaar-linked mobile. Complete verification in the new tab.",
+      );
     } catch {
       toast.error("Network error. Please try again.");
     } finally {
@@ -102,9 +104,9 @@ export function AadhaarVerifyWidget({
       const res = await fetch(`/api/agreements/${agreementId}/kyc`);
       if (!res.ok) return;
       const { kyc } = await res.json();
-      const row = (kyc as { party: string; status: string; maskedAadhaar?: string }[]).find(
-        (r) => r.party === party,
-      );
+      const row = (
+        kyc as { party: string; status: string; maskedAadhaar?: string }[]
+      ).find((r) => r.party === party);
       if (row) {
         setStatus(row.status as KycStatus);
         if (row.maskedAadhaar) {
@@ -159,15 +161,11 @@ export function AadhaarVerifyWidget({
     return (
       <div className="space-y-2">
         <div className="rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-sm text-blue-800">
-          OTP sent to Aadhaar-linked mobile. Complete verification in the
-          opened tab, then click &quot;Check status&quot; below.
+          OTP sent to Aadhaar-linked mobile. Complete verification in the opened
+          tab, then click &quot;Check status&quot; below.
         </div>
         <div className="flex flex-wrap gap-2">
-          <a
-            href={gatewayUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a href={gatewayUrl} target="_blank" rel="noopener noreferrer">
             <Button type="button" variant="outline" size="sm">
               <ExternalLink className="h-3 w-3" />
               Open verification link

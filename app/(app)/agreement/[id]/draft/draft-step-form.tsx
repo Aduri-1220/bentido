@@ -522,9 +522,13 @@ function UploadDraftCheckoutForm({
                 <Select
                   value={landlordGenderVal || undefined}
                   onValueChange={(v) =>
-                    setValue("landlordGender", v as "Male" | "Female" | "Other", {
-                      shouldValidate: true,
-                    })
+                    setValue(
+                      "landlordGender",
+                      v as "Male" | "Female" | "Other",
+                      {
+                        shouldValidate: true,
+                      },
+                    )
                   }
                 >
                   <SelectTrigger id="landlordGender">

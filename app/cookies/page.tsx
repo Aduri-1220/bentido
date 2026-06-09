@@ -83,9 +83,10 @@ export default function CookiePolicyPage() {
           4. Managing cookies
         </h2>
         <p>
-          You can block or delete cookies through your browser settings. Blocking
-          strictly necessary cookies may prevent sign-in or other features from
-          working. For more information, see your browser’s help documentation.
+          You can block or delete cookies through your browser settings.
+          Blocking strictly necessary cookies may prevent sign-in or other
+          features from working. For more information, see your browser’s help
+          documentation.
         </p>
       </section>
 

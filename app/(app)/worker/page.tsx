@@ -46,8 +46,7 @@ export default async function WorkerAgreementsPage({
         {digitsQuery ? (
           <span className="text-sm font-normal text-slate-500">
             {" "}
-            — mobile{" "}
-            {digitsQuery.length === 10 ? "exact" : "partial"} match
+            — mobile {digitsQuery.length === 10 ? "exact" : "partial"} match
           </span>
         ) : null}
       </h2>

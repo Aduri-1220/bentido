@@ -48,7 +48,10 @@ export const propertySchema = z
   .object({
     type: requiredString("Property type is required"),
     bhk: z.string().optional().default(""),
-    bathrooms: z.preprocess(emptyNumberToUndefined, z.number().int().optional()),
+    bathrooms: z.preprocess(
+      emptyNumberToUndefined,
+      z.number().int().optional(),
+    ),
     furnishing: z.string().optional().default(""),
     flatNumber: z.string().optional().default(""),
     floorNumber: z.string().optional().default(""),
@@ -96,9 +99,7 @@ export const propertySchema = z
         ? getPropertyTypeCategory(data.type.trim())
         : "unknown";
 
-    const treatAsResidential =
-      cat === "residential" ||
-      cat === "unknown";
+    const treatAsResidential = cat === "residential" || cat === "unknown";
 
     const hasUnitMarker =
       (data.flatNumber?.trim()?.length ?? 0) > 0 ||
@@ -199,12 +200,9 @@ export const propertySchema = z
     const cat = getPropertyTypeCategory(data.type.trim());
     const treatAsResidential = cat === "residential" || cat === "unknown";
 
-    let bhk =
-      typeof data.bhk === "string" ? data.bhk.trim() : "";
+    let bhk = typeof data.bhk === "string" ? data.bhk.trim() : "";
     const furnishingTrim = (
-      typeof data.furnishing === "string"
-        ? data.furnishing.trim()
-        : ""
+      typeof data.furnishing === "string" ? data.furnishing.trim() : ""
     ).trim();
 
     if (!treatAsResidential && !bhk) {
@@ -212,19 +210,13 @@ export const propertySchema = z
     }
 
     let furnishing = furnishingTrim;
-    if (
-      !furnishing &&
-      (cat === "warehouse" || cat === "land_building")
-    ) {
+    if (!furnishing && (cat === "warehouse" || cat === "land_building")) {
       furnishing = "Not applicable";
     }
 
     const bathroomsComputed =
       typeof data.bathrooms === "number" && Number.isFinite(data.bathrooms)
-        ? Math.min(
-            Math.max(Math.trunc(data.bathrooms), 0),
-            99,
-          )
+        ? Math.min(Math.max(Math.trunc(data.bathrooms), 0), 99)
         : treatAsResidential
           ? Math.max(Number(data.bathrooms) || 1, 1)
           : cat === "commercial"

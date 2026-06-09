@@ -54,9 +54,7 @@ class Logger {
     message: string,
     context?: LogContext,
   ) {
-    const scrubbed = context
-      ? (scrub(context) as LogContext)
-      : undefined;
+    const scrubbed = context ? (scrub(context) as LogContext) : undefined;
     const entry = {
       timestamp: new Date().toISOString(),
       level,

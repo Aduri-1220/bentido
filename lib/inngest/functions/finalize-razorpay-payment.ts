@@ -1,10 +1,7 @@
 import { recordAuditEvent } from "@/lib/audit-log";
 import { logger } from "@/lib/logger";
 import { finalizeRazorpayCapturedPayment } from "@/lib/payment-finalize";
-import {
-  inngest,
-  type RazorpayPaymentCapturedData,
-} from "../client";
+import { inngest, type RazorpayPaymentCapturedData } from "../client";
 
 /**
  * Settles Razorpay payment capture asynchronously.

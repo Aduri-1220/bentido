@@ -17,3 +17,7 @@ blob-report/
 
 # Lockfiles (machine-generated noise)
 package-lock.json
+
+# Editor / agent metadata
+.claude/
+.cursor/

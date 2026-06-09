@@ -101,8 +101,8 @@ export function LandingFaqSection() {
             Answers before you start
           </h2>
           <p className="mt-3 text-sm text-stone-600 sm:mt-4 sm:text-base">
-            Plain language so you spend less time searching and more time
-            moving in.
+            Plain language so you spend less time searching and more time moving
+            in.
           </p>
         </div>
 

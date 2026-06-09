@@ -38,8 +38,7 @@ export function StatusTimeline({
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const statusIndex = STATUS_FLOW.findIndex((s) => s.id === currentStatus);
-  const displayIndex =
-    statusIndex >= 0 ? statusIndex : STATUS_FLOW.length - 1;
+  const displayIndex = statusIndex >= 0 ? statusIndex : STATUS_FLOW.length - 1;
 
   async function advance() {
     if (statusIndex < 0) return;
@@ -62,8 +61,7 @@ export function StatusTimeline({
     }
   }
 
-  const nextStage =
-    statusIndex >= 0 ? STATUS_FLOW[statusIndex + 1] : undefined;
+  const nextStage = statusIndex >= 0 ? STATUS_FLOW[statusIndex + 1] : undefined;
 
   return (
     <section className="rounded-2xl border bg-white p-6 shadow-sm">
@@ -83,8 +81,7 @@ export function StatusTimeline({
 
       <ol className="relative mt-6 space-y-1">
         {STATUS_FLOW.map((s, i) => {
-          const Icon =
-            ICONS[s.id as keyof typeof ICONS] ?? ICONS.DRAFT;
+          const Icon = ICONS[s.id as keyof typeof ICONS] ?? ICONS.DRAFT;
           const isDone = i < displayIndex;
           const isCurrent = i === displayIndex;
           const isLast = i === STATUS_FLOW.length - 1;
@@ -150,9 +147,9 @@ export function StatusTimeline({
         <div className="rounded-xl border bg-slate-50 p-4 text-sm text-slate-700">
           <div className="font-semibold text-slate-900">Demo control</div>
           <p className="mt-1 text-xs text-slate-600">
-            In production this advances automatically as stamping, e-signing
-            and courier callbacks come in. For now you can step through the
-            flow manually.
+            In production this advances automatically as stamping, e-signing and
+            courier callbacks come in. For now you can step through the flow
+            manually.
           </p>
           <Button
             onClick={advance}

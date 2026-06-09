@@ -69,7 +69,7 @@ export default async function WorkerAgreementDetailPage({
         ? "Not completed yet"
         : payment?.status === "FAILED"
           ? "Payment failed"
-          : payment?.status ?? "—";
+          : (payment?.status ?? "—");
 
   return (
     <div>
@@ -125,8 +125,8 @@ export default async function WorkerAgreementDetailPage({
           <CardHeader>
             <CardTitle className="text-base">Customer</CardTitle>
             <CardDescription>
-              Email/password sign-up uses their 10-digit mobile as database
-              user id. Filter agreements on staff lists by typing that mobile.
+              Email/password sign-up uses their 10-digit mobile as database user
+              id. Filter agreements on staff lists by typing that mobile.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
@@ -167,7 +167,10 @@ export default async function WorkerAgreementDetailPage({
                   label="Payment mode"
                   value={paymentMethodLabel(payment.method)}
                 />
-                <Row label="Recorded at" value={formatDate(payment.createdAt)} />
+                <Row
+                  label="Recorded at"
+                  value={formatDate(payment.createdAt)}
+                />
               </>
             ) : (
               <p className="text-slate-600">No payment record yet.</p>
@@ -243,9 +246,7 @@ export default async function WorkerAgreementDetailPage({
             <Row
               label="Stamp duty on order"
               value={
-                agreement.stampValue != null
-                  ? "Included (amount hidden)"
-                  : "—"
+                agreement.stampValue != null ? "Included (amount hidden)" : "—"
               }
             />
             {agreement.addOns.length === 0 ? (

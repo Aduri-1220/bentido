@@ -106,8 +106,8 @@ function StatusBanner({
   if (status === "APPROVED") {
     return (
       <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
-        You've approved this agreement. The landlord will proceed to payment
-        and you'll receive the Aadhaar e-sign link once it's ready.
+        You've approved this agreement. The landlord will proceed to payment and
+        you'll receive the Aadhaar e-sign link once it's ready.
       </div>
     );
   }

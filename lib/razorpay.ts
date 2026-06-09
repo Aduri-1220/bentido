@@ -69,7 +69,10 @@ export function verifyRazorpayPaymentSignature(input: {
   const got = input.signature.trim().toLowerCase();
   if (expected.length !== got.length) return false;
   try {
-    return timingSafeEqual(Buffer.from(expected, "utf8"), Buffer.from(got, "utf8"));
+    return timingSafeEqual(
+      Buffer.from(expected, "utf8"),
+      Buffer.from(got, "utf8"),
+    );
   } catch {
     return false;
   }

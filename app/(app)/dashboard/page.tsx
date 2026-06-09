@@ -1,6 +1,12 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { ArrowRight, Briefcase, FileText, ScrollText, Shield } from "lucide-react";
+import {
+  ArrowRight,
+  Briefcase,
+  FileText,
+  ScrollText,
+  Shield,
+} from "lucide-react";
 import { isAdminEmail } from "@/lib/admin";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
@@ -142,11 +148,7 @@ function DashboardStaffAccountLinks({
       </p>
       <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
         {showAdmin ? (
-          <PortalLink
-            href="/admin"
-            label="Admin dashboard"
-            icon={Shield}
-          />
+          <PortalLink href="/admin" label="Admin dashboard" icon={Shield} />
         ) : null}
         {showWorker ? (
           <PortalLink

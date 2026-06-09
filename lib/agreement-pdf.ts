@@ -8,7 +8,9 @@ import { parseAgreementJsonFields } from "./agreement";
 import type { ClausesData, WitnessesData } from "./schemas";
 import { format } from "date-fns";
 
-export async function generateAgreementPdf(agreementId: string): Promise<string> {
+export async function generateAgreementPdf(
+  agreementId: string,
+): Promise<string> {
   const agreement = await prisma.agreement.findUnique({
     where: { id: agreementId },
     select: {
@@ -60,7 +62,10 @@ export async function generateAgreementPdf(agreementId: string): Promise<string>
         .moveDown(0.3);
     }
 
-    doc.moveTo(60, doc.y).lineTo(doc.page.width - 60, doc.y).stroke();
+    doc
+      .moveTo(60, doc.y)
+      .lineTo(doc.page.width - 60, doc.y)
+      .stroke();
     doc.moveDown(0.8);
 
     // ─── Parties ─────────────────────────────────────────────────────────────
@@ -68,9 +73,7 @@ export async function generateAgreementPdf(agreementId: string): Promise<string>
     doc
       .font("Helvetica")
       .fontSize(11)
-      .text(
-        `This Rental Agreement is entered into on ${today} by and between:`,
-      )
+      .text(`This Rental Agreement is entered into on ${today} by and between:`)
       .moveDown(0.5);
 
     sectionHeading(doc, "FIRST PARTY (OWNER / LANDLORD)");
@@ -117,7 +120,8 @@ export async function generateAgreementPdf(agreementId: string): Promise<string>
     sectionHeading(doc, "PROPERTY DETAILS");
     if (property) {
       kvLine(doc, "Type", property.type);
-      if (property.bhk && property.bhk !== "—") kvLine(doc, "Configuration", property.bhk);
+      if (property.bhk && property.bhk !== "—")
+        kvLine(doc, "Configuration", property.bhk);
       if (property.furnishing) kvLine(doc, "Furnishing", property.furnishing);
       kvLine(
         doc,
@@ -145,12 +149,21 @@ export async function generateAgreementPdf(agreementId: string): Promise<string>
     doc.moveDown(0.3);
     sectionHeading(doc, "RENTAL TERMS");
     if (terms) {
-      kvLine(doc, "Monthly Rent", `₹${terms.monthlyRent.toLocaleString("en-IN")}`);
-      kvLine(doc, "Security Deposit", `₹${terms.securityDeposit.toLocaleString("en-IN")}`);
+      kvLine(
+        doc,
+        "Monthly Rent",
+        `₹${terms.monthlyRent.toLocaleString("en-IN")}`,
+      );
+      kvLine(
+        doc,
+        "Security Deposit",
+        `₹${terms.securityDeposit.toLocaleString("en-IN")}`,
+      );
       kvLine(doc, "Duration", `${terms.durationMonths} months`);
       kvLine(doc, "Start Date", terms.startDate);
       kvLine(doc, "Notice Period", `${terms.noticePeriodMonths} month(s)`);
-      if (terms.lockInMonths) kvLine(doc, "Lock-in Period", `${terms.lockInMonths} month(s)`);
+      if (terms.lockInMonths)
+        kvLine(doc, "Lock-in Period", `${terms.lockInMonths} month(s)`);
       kvLine(doc, "Rent Due By", `${terms.rentDueDay}th of each month`);
       kvLine(doc, "Payment Mode", terms.paymentMode);
       if (terms.incrementPercent) {
@@ -197,7 +210,11 @@ export async function generateAgreementPdf(agreementId: string): Promise<string>
       .text("Owner / Landlord (First Party)", 60, sigY)
       .font("Helvetica")
       .text(owner?.fullName ?? "___________________________", 60, sigY + 14)
-      .text("Aadhaar: XXXX XXXX " + (owner?.aadhaarLast4 ?? "____"), 60, sigY + 28)
+      .text(
+        "Aadhaar: XXXX XXXX " + (owner?.aadhaarLast4 ?? "____"),
+        60,
+        sigY + 28,
+      )
       .text("Date: _______________", 60, sigY + 42)
       .text("Signature: ___________________", 60, sigY + 64);
 
@@ -207,7 +224,11 @@ export async function generateAgreementPdf(agreementId: string): Promise<string>
       .text("Tenant (Second Party)", col2X, sigY)
       .font("Helvetica")
       .text(tenant?.fullName ?? "___________________________", col2X, sigY + 14)
-      .text("Aadhaar: XXXX XXXX " + (tenant?.aadhaarLast4 ?? "____"), col2X, sigY + 28)
+      .text(
+        "Aadhaar: XXXX XXXX " + (tenant?.aadhaarLast4 ?? "____"),
+        col2X,
+        sigY + 28,
+      )
       .text("Date: _______________", col2X, sigY + 42)
       .text("Signature: ___________________", col2X, sigY + 64);
 
@@ -269,8 +290,7 @@ function partyBlock(
   if (p.age) kvLine(doc, "Age", String(p.age));
   if (p.gender) kvLine(doc, "Gender", p.gender);
   if (p.pan) kvLine(doc, "PAN", p.pan);
-  if (p.aadhaarLast4)
-    kvLine(doc, "Aadhaar", `XXXX XXXX ${p.aadhaarLast4}`);
+  if (p.aadhaarLast4) kvLine(doc, "Aadhaar", `XXXX XXXX ${p.aadhaarLast4}`);
   kvLine(doc, "Address", `${p.address}, ${p.city}, ${p.state}`);
   kvLine(doc, "Phone", p.phone);
   kvLine(doc, "Email", p.email);

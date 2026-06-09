@@ -94,18 +94,13 @@ export default async function AgreementStatusPage({
             <KV
               label="Txn / ref"
               value={
-                payment?.providerPaymentId ??
-                payment?.providerOrderId ??
-                "—"
+                payment?.providerPaymentId ?? payment?.providerOrderId ?? "—"
               }
             />
           </Card>
 
           <Card title="Delivery">
-            <KV
-              label="Method"
-              value={deliveryMethodLabel(delivery?.method)}
-            />
+            <KV label="Method" value={deliveryMethodLabel(delivery?.method)} />
             {delivery?.address && (
               <KV label="Address" value={delivery.address} />
             )}
@@ -114,45 +109,50 @@ export default async function AgreementStatusPage({
             )}
             {delivery != null &&
               deliveryUsesExecutedCopyUpload(delivery.method) && (
-              <>
-                {!agreementStatusAllowsExecutedCopyDownload(
-                  parsed.agreement.status,
-                ) ? (
-                  <p className="pt-1 text-xs text-slate-500">
-                    Once e-stamping and Aadhaar e-sign are done, your executed
-                    PDF will be downloadable from{" "}
-                    <span className="font-medium text-slate-700">
-                      Out for Delivery
-                    </span>{" "}
-                    onward.
-                  </p>
-                ) : delivery.scannedCopyUploadedAt ? (
-                  <div className="pt-2">
-                    <Button asChild variant="brand" size="lg" className="w-full">
-                      <a
-                        href={`/api/agreements/${params.id}/scanned-copy`}
-                        download
+                <>
+                  {!agreementStatusAllowsExecutedCopyDownload(
+                    parsed.agreement.status,
+                  ) ? (
+                    <p className="pt-1 text-xs text-slate-500">
+                      Once e-stamping and Aadhaar e-sign are done, your executed
+                      PDF will be downloadable from{" "}
+                      <span className="font-medium text-slate-700">
+                        Out for Delivery
+                      </span>{" "}
+                      onward.
+                    </p>
+                  ) : delivery.scannedCopyUploadedAt ? (
+                    <div className="pt-2">
+                      <Button
+                        asChild
+                        variant="brand"
+                        size="lg"
+                        className="w-full"
                       >
-                        <Download className="mr-2 h-4 w-4" />
-                        {delivery.method === "DIGITAL"
-                          ? "Download digital copy"
-                          : "Download scanned copy"}
-                      </a>
-                    </Button>
-                    {delivery.scannedCopyOriginalName ? (
-                      <p className="mt-2 text-xs text-slate-500">
-                        {delivery.scannedCopyOriginalName}
-                      </p>
-                    ) : null}
-                  </div>
-                ) : (
-                  <p className="pt-1 text-xs text-slate-500">
-                    Your finalized PDF will appear here shortly after our team
-                    uploads it.
-                  </p>
-                )}
-              </>
-            )}
+                        <a
+                          href={`/api/agreements/${params.id}/scanned-copy`}
+                          download
+                        >
+                          <Download className="mr-2 h-4 w-4" />
+                          {delivery.method === "DIGITAL"
+                            ? "Download digital copy"
+                            : "Download scanned copy"}
+                        </a>
+                      </Button>
+                      {delivery.scannedCopyOriginalName ? (
+                        <p className="mt-2 text-xs text-slate-500">
+                          {delivery.scannedCopyOriginalName}
+                        </p>
+                      ) : null}
+                    </div>
+                  ) : (
+                    <p className="pt-1 text-xs text-slate-500">
+                      Your finalized PDF will appear here shortly after our team
+                      uploads it.
+                    </p>
+                  )}
+                </>
+              )}
           </Card>
 
           <Card title="Add-ons">

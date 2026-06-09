@@ -31,9 +31,7 @@ export async function GET(
   }
 
   const owns = agreement.userId === user.id;
-  const isStaff = owns
-    ? false
-    : await staffAgreementAccessForUserId(user.id);
+  const isStaff = owns ? false : await staffAgreementAccessForUserId(user.id);
   if (!owns && !isStaff) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }

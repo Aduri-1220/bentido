@@ -49,11 +49,19 @@ export async function notifyAgreementEvent(
     };
 
     await Promise.allSettled([
-      agreement.user.email ? dispatchEmail(event, agreement.user.email, ctx) : Promise.resolve(),
-      agreement.user.phone ? dispatchWhatsApp(event, agreement.user.phone, ctx) : Promise.resolve(),
+      agreement.user.email
+        ? dispatchEmail(event, agreement.user.email, ctx)
+        : Promise.resolve(),
+      agreement.user.phone
+        ? dispatchWhatsApp(event, agreement.user.phone, ctx)
+        : Promise.resolve(),
     ]);
   } catch (err) {
-    console.error("[notifications] dispatch failed", { event, agreementId, err });
+    console.error("[notifications] dispatch failed", {
+      event,
+      agreementId,
+      err,
+    });
   }
 }
 
@@ -194,11 +202,18 @@ export async function notifyCounterpartyInvited(
     const text = `Hi ${tenant.name},\n\n${ownerName} has shared a draft rental agreement for your review.\n\nReview it here: ${reviewUrl}\n\nThis link is valid for 7 days.`;
 
     await Promise.allSettled([
-      tenant.email ? sendEmail({ to: tenant.email, subject, html, text }) : Promise.resolve(),
-      tenant.phone ? dispatchCounterpartyInviteWhatsApp(tenant.phone, reviewUrl) : Promise.resolve(),
+      tenant.email
+        ? sendEmail({ to: tenant.email, subject, html, text })
+        : Promise.resolve(),
+      tenant.phone
+        ? dispatchCounterpartyInviteWhatsApp(tenant.phone, reviewUrl)
+        : Promise.resolve(),
     ]);
   } catch (err) {
-    console.error("[notifications] counterparty invite failed", { agreementId, err });
+    console.error("[notifications] counterparty invite failed", {
+      agreementId,
+      err,
+    });
   }
 }
 

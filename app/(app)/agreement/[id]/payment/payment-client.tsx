@@ -460,7 +460,9 @@ function ReadyView({
         <div className="space-y-3 py-2 text-sm text-slate-700">
           <p className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-[13px] leading-relaxed">
             If you see{" "}
-            <strong className="text-slate-900">International cards are not supported</strong>
+            <strong className="text-slate-900">
+              International cards are not supported
+            </strong>
             , the PAN/BIN is treated as non-Indian. Use a number from{" "}
             <a
               href="https://razorpay.com/docs/payments/payments/test-card-details/"

@@ -33,7 +33,9 @@ export function LegalPageShell({
         <h1 className="font-serif text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
           {title}
         </h1>
-        <p className="mt-2 text-sm text-slate-500">Last updated: {lastUpdated}</p>
+        <p className="mt-2 text-sm text-slate-500">
+          Last updated: {lastUpdated}
+        </p>
         <div className="mt-10 space-y-8 text-sm leading-relaxed text-slate-700 sm:text-[15px] sm:leading-7">
           {children}
         </div>

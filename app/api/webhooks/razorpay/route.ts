@@ -92,9 +92,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true });
   }
 
-  const inngestKeyConfigured = Boolean(
-    process.env.INNGEST_EVENT_KEY?.trim(),
-  );
+  const inngestKeyConfigured = Boolean(process.env.INNGEST_EVENT_KEY?.trim());
 
   if (inngestKeyConfigured) {
     await inngest.send({

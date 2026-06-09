@@ -43,17 +43,15 @@ export function DraftDocument({
       : "unknown";
   const scheduleResidentialLike =
     scheduleCategory === "residential" || scheduleCategory === "unknown";
-  const restroomsScheduleLabel =
-    scheduleResidentialLike
-      ? "Bathrooms"
-      : scheduleCategory === "commercial"
-        ? "Restrooms / WCs"
-        : "Toilets / restrooms";
+  const restroomsScheduleLabel = scheduleResidentialLike
+    ? "Bathrooms"
+    : scheduleCategory === "commercial"
+      ? "Restrooms / WCs"
+      : "Toilets / restrooms";
   const furnishingScheduleLabel =
     scheduleCategory === "commercial" ? "Fit-out / furnishing" : "Furnishing";
   const areaScheduleLabel =
-    scheduleCategory === "warehouse" ||
-    scheduleCategory === "land_building"
+    scheduleCategory === "warehouse" || scheduleCategory === "land_building"
       ? "Built-up / demised area"
       : scheduleCategory === "commercial"
         ? "Built-up / carpet area"
@@ -167,13 +165,12 @@ export function DraftDocument({
               </>
             ) : null}{" "}
             — <em>{restroomsScheduleLabel}:</em>{" "}
-            {property?.bathrooms != null ? property.bathrooms : "____"}{" "}
-            — <em>{furnishingScheduleLabel}:</em>{" "}
-            {property?.furnishing || "____"}
+            {property?.bathrooms != null ? property.bathrooms : "____"} —{" "}
+            <em>{furnishingScheduleLabel}:</em> {property?.furnishing || "____"}
           </div>
           <div>
-            <em>{areaScheduleLabel}:</em> {property?.carpetArea || "____"}{" "}
-            sq. ft.
+            <em>{areaScheduleLabel}:</em> {property?.carpetArea || "____"} sq.
+            ft.
           </div>
           <div>
             <em>Address:</em>{" "}
@@ -200,15 +197,14 @@ export function DraftDocument({
               <em>Amenities:</em> {property.amenities.join(", ")}
             </div>
           )}
-          {property?.customAmenities &&
-            property.customAmenities.length > 0 && (
-              <div>
-                <em>Additional amenities:</em>{" "}
-                {property.customAmenities
-                  .map((c) => `${c.item} (×${c.units})`)
-                  .join(", ")}
-              </div>
-            )}
+          {property?.customAmenities && property.customAmenities.length > 0 && (
+            <div>
+              <em>Additional amenities:</em>{" "}
+              {property.customAmenities
+                .map((c) => `${c.item} (×${c.units})`)
+                .join(", ")}
+            </div>
+          )}
         </div>
       </DraftSection>
 

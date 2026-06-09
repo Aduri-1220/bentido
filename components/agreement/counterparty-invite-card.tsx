@@ -41,9 +41,7 @@ export function CounterpartyInviteCard({
         throw new Error(j.error ?? "Could not send invite");
       }
       toast.success(
-        tenantEmail
-          ? `Review link sent to ${tenantEmail}`
-          : "Review link sent",
+        tenantEmail ? `Review link sent to ${tenantEmail}` : "Review link sent",
       );
       router.refresh();
     } catch (e) {

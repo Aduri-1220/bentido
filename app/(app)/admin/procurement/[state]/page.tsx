@@ -32,7 +32,9 @@ export default async function ProcurementByStatePage({
       user: { select: { name: true, email: true, phone: true } },
     },
   });
-  const rows = candidates.filter((a) => extractState(a.propertyJson) === params.state);
+  const rows = candidates.filter(
+    (a) => extractState(a.propertyJson) === params.state,
+  );
 
   return (
     <div>
