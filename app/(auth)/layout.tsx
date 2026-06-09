@@ -23,7 +23,7 @@ export default function AuthLayout({
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-brand-700 shadow">
             <FileSignature className="h-5 w-5" />
           </div>
-          <span className="text-lg font-bold">WeBroker</span>
+          <span className="text-lg font-bold">bentido</span>
         </Link>
 
         <div className="relative">

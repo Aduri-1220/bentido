@@ -1,4 +1,4 @@
-# WeBroker — Rental agreements, sorted in minutes
+# bentido — Rental agreements, sorted in minutes
 
 A polished Next.js 14 web app for drafting, e-stamping, e-signing and delivering
 rental agreements end-to-end. This iteration focuses on the **full UX flow** with

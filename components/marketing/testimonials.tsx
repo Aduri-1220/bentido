@@ -19,7 +19,7 @@ const items = [
     name: "Karthik Reddy",
     role: "Broker, Hyderabad",
     rating: 5,
-    body: "I close 4–5 leases a month through WeBroker. The Aadhaar e-sign step is a magic moment with clients.",
+    body: "I close 4–5 leases a month through bentido. The Aadhaar e-sign step is a magic moment with clients.",
   },
 ];
 

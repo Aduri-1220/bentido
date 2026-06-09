@@ -6,7 +6,7 @@ import { test, expect } from "@playwright/test";
  * partial re-runs in --ui mode benefit from uniqueness anyway.
  */
 function uniqueEmail() {
-  return `qa+${Date.now()}-${Math.floor(Math.random() * 1e6)}@webroker.test`;
+  return `qa+${Date.now()}-${Math.floor(Math.random() * 1e6)}@bentido.test`;
 }
 
 test.describe("auth & onboarding", () => {

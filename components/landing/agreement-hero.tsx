@@ -22,7 +22,7 @@ export function AgreementHero() {
   return (
     <section
       className="relative isolate overflow-hidden bg-white pt-24 pb-16 sm:pt-32 sm:pb-24"
-      aria-label="WeBroker hero"
+      aria-label="bentido hero"
     >
       <HeroBackdrop />
 
@@ -262,7 +262,7 @@ function RentalFlowShowcase() {
       <div className="relative">
         <div className="flex items-center justify-between gap-3">
           <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-500">
-            How WeBroker closes rentals
+            How bentido closes rentals
           </p>
           <motion.span
             key={active.label}

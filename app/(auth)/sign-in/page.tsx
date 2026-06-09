@@ -257,7 +257,7 @@ function SignInForm() {
       </form>
 
       <p className="mt-6 text-center text-sm text-slate-600">
-        New to WeBroker?{" "}
+        New to bentido?{" "}
         <Link
           href="/sign-up"
           className="font-semibold text-brand-700 hover:underline"

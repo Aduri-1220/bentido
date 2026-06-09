@@ -18,8 +18,8 @@ const lora = Lora({
 
 export const metadata: Metadata = {
   title: {
-    default: "WeBroker — Rental agreements, sorted in minutes",
-    template: "%s · WeBroker",
+    default: "bentido — Rental agreements, sorted in minutes",
+    template: "%s · bentido",
   },
   description:
     "Neutral mediation for landlords and tenants: verified KYC, structured rental drafts, e-stamp and e-sign — without the usual broker runaround.",

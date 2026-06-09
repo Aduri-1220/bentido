@@ -4,7 +4,7 @@ import { LegalPageShell } from "@/components/landing/legal-page-shell";
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
-    "How WeBroker Mediation Pvt. Ltd. collects, uses, and protects personal data for rental agreement services.",
+    "How bentido collects, uses, and protects personal data for rental agreement services.",
 };
 
 export default function PrivacyPolicyPage() {
@@ -13,10 +13,10 @@ export default function PrivacyPolicyPage() {
       <section className="space-y-3">
         <p>
           This Privacy Policy describes how{" "}
-          <strong>WeBroker Mediation Pvt. Ltd.</strong> (“
-          <strong>Company</strong>”, “<strong>we</strong>”, “<strong>us</strong>
-          ” or “<strong>our</strong>”) handles personal data when you use the
-          WeBroker website, web application, and related services (together, the “
+          <strong>bentido</strong> (“
+          <strong>we</strong>”, “<strong>us</strong>” or “
+          <strong>our</strong>”) handles personal data when you use the
+          bentido website, web application, and related services (together, the “
           <strong>Platform</strong>”) that help landlords, tenants, and
           intermediaries prepare, pay for, and complete rental/lease agreement
           workflows — including structured drafting, optional document upload,
@@ -143,7 +143,7 @@ export default function PrivacyPolicyPage() {
         <p>
           We may disclose information if we reasonably believe it is necessary
           to: comply with applicable law or legal process; protect the rights,
-          property, or safety of the Company, users, or the public; detect or
+          property, or safety of bentido, users, or the public; detect or
           prevent fraud or security issues; or enforce our agreements. Certain
           disclosures may occur without prior notice where the law allows.
         </p>
@@ -260,11 +260,11 @@ export default function PrivacyPolicyPage() {
         <p>
           Under the Information Technology Act, 2000 and applicable rules,
           grievances concerning processing of personal data may be addressed to
-          the Grievance Officer appointed by the Company:
+          our Grievance Officer:
         </p>
         <ul className="list-none space-y-1 border-l-2 border-brand-200 pl-4">
           <li>
-            <strong>WeBroker Mediation Pvt. Ltd.</strong>
+            <strong>bentido</strong>
           </li>
           <li>
             <strong>Grievance Officer:</strong> Privacy &amp; Grievance Officer
@@ -272,10 +272,10 @@ export default function PrivacyPolicyPage() {
           <li>
             <strong>Email:</strong>{" "}
             <a
-              href="mailto:privacy@webroker.in"
+              href="mailto:support@bentido.in"
               className="font-medium text-brand-700 underline"
             >
-              privacy@webroker.in
+              support@bentido.in
             </a>
           </li>
         </ul>

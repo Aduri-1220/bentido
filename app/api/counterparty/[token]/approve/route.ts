@@ -3,6 +3,7 @@ import { auditContextFromRequest, recordAuditEvent } from "@/lib/audit-log";
 import { hashInviteToken } from "@/lib/counterparty-invite";
 import { prisma } from "@/lib/db";
 import { notifyAgreementEvent } from "@/lib/notifications";
+import { enforceUserRateLimit } from "@/lib/rate-limit";
 
 /**
  * Counterparty approves the draft. Public route — auth is the unguessable
@@ -12,6 +13,15 @@ export async function POST(
   req: Request,
   { params }: { params: { token: string } },
 ) {
+  const limited = await enforceUserRateLimit({
+    req,
+    userId: null,
+    prefix: "counterparty-approve",
+    max: 20,
+    windowSec: 60,
+  });
+  if (limited) return limited;
+
   const tokenHash = hashInviteToken(params.token);
   const agreement = await prisma.agreement.findUnique({
     where: { counterpartyInviteTokenHash: tokenHash },

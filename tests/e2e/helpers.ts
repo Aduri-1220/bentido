@@ -6,7 +6,7 @@ import { expect, type Page } from "@playwright/test";
  * globalSetup, this keeps each test fully isolated.
  */
 export function uniqueEmail() {
-  return `qa+${Date.now()}-${Math.floor(Math.random() * 1e6)}@webroker.test`;
+  return `qa+${Date.now()}-${Math.floor(Math.random() * 1e6)}@bentido.test`;
 }
 
 export const TEST_PASSWORD = "CorrectHorseBatteryStaple1";

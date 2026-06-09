@@ -35,5 +35,8 @@ export function validateEnv() {
   }
 }
 
-// Call at module load (before anything else runs)
-validateEnv();
+// Skip during `next build` page collection — env vars are validated at server
+// startup instead, so missing prod secrets don't crash the build.
+if (process.env.NEXT_PHASE !== "phase-production-build") {
+  validateEnv();
+}

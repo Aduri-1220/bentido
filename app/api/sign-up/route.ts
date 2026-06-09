@@ -5,6 +5,7 @@ import { signUpSchema } from "@/lib/schemas";
 import { generateTokenHex } from "@/lib/auth-tokens";
 import { sendEmail } from "@/lib/email";
 import { getAppOrigin } from "@/lib/app-url";
+import { logger } from "@/lib/logger";
 
 const skipEmailVerification =
   process.env.E2E_SKIP_EMAIL_VERIFICATION === "true";
@@ -80,15 +81,15 @@ export async function POST(req: Request) {
       try {
         await sendEmail({
           to: email,
-          subject: "Verify your WeBroker email",
+          subject: "Verify your bentido email",
           text: `Verify your email by opening this link (expires in 24 hours):\n${link}\n`,
           html: `<p>Hi${name ? ` ${name.split(" ")[0]}` : ""},</p>
-<p>Please verify your email for WeBroker by clicking the link below. It expires in 24 hours.</p>
+<p>Please verify your email for bentido by clicking the link below. It expires in 24 hours.</p>
 <p><a href="${link}">Verify email</a></p>
 <p>If you did not create an account, you can ignore this message.</p>`,
         });
       } catch (e) {
-        console.error("[sign-up] verification email failed:", e);
+        logger.error("[sign-up] verification email failed", e);
         await prisma.user.delete({ where: { id: user.id } });
         await prisma.verificationToken.deleteMany({
           where: { identifier: email },
@@ -110,7 +111,7 @@ export async function POST(req: Request) {
       { status: 201 },
     );
   } catch (err) {
-    console.error("[sign-up]", err);
+    logger.error("[sign-up] unexpected error", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { generateTokenHex } from "@/lib/auth-tokens";
 import { sendEmail } from "@/lib/email";
 import { getAppOrigin } from "@/lib/app-url";
+import { logger } from "@/lib/logger";
 
 const bodySchema = z.object({
   email: z.string().email(),
@@ -39,14 +40,14 @@ export async function POST(req: Request) {
       try {
         await sendEmail({
           to: email,
-          subject: "Verify your WeBroker email",
+          subject: "Verify your bentido email",
           text: `Verify your email by opening this link (expires in 24 hours):\n${link}\n`,
           html: `<p>Hi${user.name ? ` ${user.name.split(" ")[0]}` : ""},</p>
-<p>Please verify your email for WeBroker by clicking the link below. It expires in 24 hours.</p>
+<p>Please verify your email for bentido by clicking the link below. It expires in 24 hours.</p>
 <p><a href="${link}">Verify email</a></p>`,
         });
       } catch (e) {
-        console.error("[resend-verification] send failed:", e);
+        logger.error("[resend-verification] send failed", e);
         return NextResponse.json(
           { error: "Could not send email. Try again later." },
           { status: 502 },
@@ -56,7 +57,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error("[resend-verification]", err);
+    logger.error("[resend-verification] unexpected error", err);
     return NextResponse.json({ ok: true });
   }
 }

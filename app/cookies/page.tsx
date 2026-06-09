@@ -4,7 +4,7 @@ import { LegalPageShell } from "@/components/landing/legal-page-shell";
 export const metadata: Metadata = {
   title: "Cookie Policy",
   description:
-    "How WeBroker uses cookies and similar technologies on its website and web application.",
+    "How bentido uses cookies and similar technologies on its website and web application.",
 };
 
 export default function CookiePolicyPage() {
@@ -12,9 +12,9 @@ export default function CookiePolicyPage() {
     <LegalPageShell title="Cookie Policy" lastUpdated="18 May 2026">
       <section className="space-y-3">
         <p>
-          This Cookie Policy explains how <strong>WeBroker Mediation Pvt. Ltd.</strong> (“
+          This Cookie Policy explains how <strong>bentido</strong> (“
           <strong>we</strong>”, “<strong>us</strong>”) uses cookies and similar
-          technologies when you visit our website or use the WeBroker web
+          technologies when you visit our website or use the bentido web
           application (“<strong>Platform</strong>”). It should be read together
           with our{" "}
           <a href="/privacy" className="font-medium text-brand-700 underline">
@@ -38,7 +38,7 @@ export default function CookiePolicyPage() {
 
       <section className="space-y-3">
         <h2 className="font-serif text-xl font-semibold text-slate-900">
-          2. How we use cookies on WeBroker
+          2. How we use cookies on bentido
         </h2>
         <p>We use the following categories:</p>
         <ul className="list-disc space-y-2 pl-5">
@@ -96,10 +96,10 @@ export default function CookiePolicyPage() {
         <p>
           Questions about this Cookie Policy can be sent to{" "}
           <a
-            href="mailto:privacy@webroker.in"
+            href="mailto:support@bentido.in"
             className="font-medium text-brand-700 underline"
           >
-            privacy@webroker.in
+            support@bentido.in
           </a>
           .
         </p>

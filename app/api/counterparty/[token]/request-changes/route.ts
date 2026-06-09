@@ -4,6 +4,7 @@ import { auditContextFromRequest, recordAuditEvent } from "@/lib/audit-log";
 import { hashInviteToken } from "@/lib/counterparty-invite";
 import { prisma } from "@/lib/db";
 import { notifyAgreementEvent } from "@/lib/notifications";
+import { enforceUserRateLimit } from "@/lib/rate-limit";
 
 const bodySchema = z.object({
   comment: z
@@ -21,6 +22,15 @@ export async function POST(
   req: Request,
   { params }: { params: { token: string } },
 ) {
+  const limited = await enforceUserRateLimit({
+    req,
+    userId: null,
+    prefix: "counterparty-changes",
+    max: 20,
+    windowSec: 60,
+  });
+  if (limited) return limited;
+
   let json: unknown = null;
   try {
     json = await req.json();

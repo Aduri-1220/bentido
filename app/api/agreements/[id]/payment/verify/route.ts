@@ -7,6 +7,7 @@ import {
 } from "@/lib/razorpay";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
+import { logger } from "@/lib/logger";
 
 const bodySchema = z.object({
   razorpay_order_id: z.string().min(1),
@@ -67,7 +68,7 @@ export async function POST(
       keySecret,
     });
   } catch (e) {
-    console.error("[payment/verify]", e);
+    logger.error("[payment/verify] razorpay fetch failed", e);
     return NextResponse.json(
       { error: "Could not verify payment" },
       { status: 502 },

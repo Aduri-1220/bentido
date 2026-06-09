@@ -24,7 +24,7 @@ export function CtaBanner() {
               Your rental agreement is just a few clicks away
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-balance text-lg text-white/90">
-              Join 12,000+ owners, tenants and brokers using WeBroker every
+              Join 12,000+ owners, tenants and brokers using bentido every
               month.
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">

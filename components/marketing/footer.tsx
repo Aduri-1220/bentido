@@ -50,8 +50,7 @@ export function Footer() {
         </div>
         <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t pt-6 text-xs text-slate-500 md:flex-row">
           <span>
-            © {new Date().getFullYear()} WeBroker Technologies Pvt. Ltd. All
-            rights reserved.
+            © {new Date().getFullYear()} bentido. All rights reserved.
           </span>
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
             <Link

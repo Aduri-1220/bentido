@@ -24,7 +24,7 @@ export function LegalPageShell({
             className="flex items-center gap-2 text-sm font-semibold text-slate-800"
           >
             <FileSignature className="h-5 w-5 text-brand-600" />
-            WeBroker
+            bentido
           </Link>
         </div>
       </header>

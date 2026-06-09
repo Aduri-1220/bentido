@@ -36,7 +36,7 @@ export async function rateLimitIdentity(
     redis,
     limiter: Ratelimit.slidingWindow(maxPerWindow, `${windowSeconds} s`),
     analytics: false,
-    prefix: `webroker:${prefix}`,
+    prefix: `bentido:${prefix}`,
   });
 
   const { success, reset } = await limiter.limit(identity);

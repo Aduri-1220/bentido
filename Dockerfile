@@ -12,7 +12,9 @@ RUN apt-get update \
 
 COPY package.json package-lock.json ./
 
-RUN npm ci
+# `--ignore-scripts` skips the `postinstall` (prisma generate) — the schema isn't
+# copied yet at this stage. The builder stage runs `npx prisma generate` explicitly.
+RUN npm ci --ignore-scripts
 
 # -----------------------------------------------------------------------------
 # Build Next.js (standalone output) + Prisma client

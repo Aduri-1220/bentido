@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { hashToken } from "@/lib/auth-tokens";
+import { logger } from "@/lib/logger";
 
 const bodySchema = z.object({
   token: z.string().min(1),
@@ -47,7 +48,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error("[reset-password]", err);
+    logger.error("[reset-password] unexpected error", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

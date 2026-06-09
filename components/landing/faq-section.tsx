@@ -34,7 +34,7 @@ const FAQ_ITEMS = [
     a: "You can review your full draft before committing. Service fees are collected when you proceed to payment for stamping, signatures, and any delivery options you select.",
   },
   {
-    q: "Who is WeBroker for?",
+    q: "Who is bentido for?",
     a: "Owners, tenants, and consultants who want a single neutral flow for Indian residential leases — especially when you’ve already agreed on rent and want paperwork that keeps up.",
   },
 ] as const;

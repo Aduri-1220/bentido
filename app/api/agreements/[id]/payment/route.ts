@@ -15,6 +15,7 @@ import {
 import { razorpayCreateOrder } from "@/lib/razorpay";
 import { enforceUserRateLimit } from "@/lib/rate-limit";
 import { getCurrentUser } from "@/lib/session";
+import { logger } from "@/lib/logger";
 
 const mockBodySchema = z.object({
   simulate: z.enum(["success", "failure"]).default("success"),
@@ -129,7 +130,7 @@ export async function POST(
     try {
       assertRazorpayApiKeysConfigured();
     } catch (e) {
-      console.error("[payment]", e);
+      logger.error("[payment] Razorpay keys missing", e);
       return NextResponse.json(
         {
           error:
@@ -152,7 +153,7 @@ export async function POST(
         notes: { agreementId: params.id, userId: user.id },
       });
     } catch (e) {
-      console.error("[payment] razorpay order", e);
+      logger.error("[payment] razorpay order creation failed", e);
       return NextResponse.json(
         { error: "Could not start checkout. Try again later." },
         { status: 502 },

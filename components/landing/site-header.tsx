@@ -18,7 +18,7 @@ export function SiteHeader() {
           className="flex shrink-0 items-center gap-2 text-slate-800"
         >
           <FileSignature className="h-5 w-5 text-brand-600" />
-          <span className="text-sm font-semibold tracking-wide">WeBroker</span>
+          <span className="text-sm font-semibold tracking-wide">bentido</span>
         </Link>
         <nav className="hidden items-center gap-6 text-sm text-slate-600 sm:flex">
           <a href="#for-you" className="transition hover:text-slate-900">

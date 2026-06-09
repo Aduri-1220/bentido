@@ -20,7 +20,10 @@ export async function POST(
   req: Request,
   { params }: { params: { id: string } },
 ) {
-  if (process.env.DISABLE_PUBLIC_AGREEMENT_STATUS_ADVANCE === "true") {
+  if (
+    process.env.NODE_ENV === "production" &&
+    process.env.ALLOW_PUBLIC_AGREEMENT_STATUS_ADVANCE !== "true"
+  ) {
     return NextResponse.json(
       {
         error:

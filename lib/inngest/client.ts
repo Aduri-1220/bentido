@@ -3,7 +3,7 @@ import { Inngest } from "inngest";
 /**
  * Event registry. Add new payload types here as we wire more provider webhooks.
  */
-export type WeBrokerEventName = "razorpay/payment.captured";
+export type BentidoEventName = "razorpay/payment.captured";
 
 export interface RazorpayPaymentCapturedData {
   agreementId: string;

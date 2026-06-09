@@ -1,6 +1,6 @@
 export { inngest, isInngestConfigured } from "./client";
 export type {
-  WeBrokerEventName,
+  BentidoEventName,
   RazorpayPaymentCapturedData,
 } from "./client";
 

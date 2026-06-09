@@ -161,7 +161,7 @@ export function PaymentClient({
           amount: created.amountPaise,
           order_id: created.orderId,
           currency,
-          name: "WeBroker",
+          name: "bentido",
           description: "Rental agreement order",
           handler: async (response: RazorpayHandlerResponse) => {
             const verify = await fetch(
@@ -445,9 +445,9 @@ function ReadyView({
       <DialogHeader>
         <DialogTitle className="flex items-center gap-2">
           <div className="flex h-7 w-7 items-center justify-center rounded bg-gradient-to-br from-brand-500 to-brand-700 text-xs font-bold text-white">
-            WB
+            b
           </div>
-          WeBroker Payments
+          bentido Payments
         </DialogTitle>
         <DialogDescription>
           {checkoutMode === "razorpay"
@@ -490,7 +490,7 @@ function ReadyView({
               <Input
                 id="upi"
                 placeholder="username@bank"
-                defaultValue="demo@webroker"
+                defaultValue="demo@bentido"
               />
             </div>
           )}

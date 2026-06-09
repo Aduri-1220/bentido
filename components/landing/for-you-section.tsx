@@ -35,7 +35,7 @@ export function ForYouSection() {
             Renting should feel fair — for you, not just for the process.
           </h2>
           <p className="mt-3 text-sm text-stone-600 sm:mt-4 sm:text-base">
-            WeBroker sits in the middle so owners and tenants get the same
+            bentido sits in the middle so owners and tenants get the same
             clarity, the same protections, and one neutral place to finish the
             deal.
           </p>

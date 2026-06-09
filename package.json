@@ -1,5 +1,5 @@
 {
-  "name": "webroker",
+  "name": "bentido",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -33,7 +33,7 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:report": "playwright show-report",
-    "docker:build": "docker build -t webroker .",
+    "docker:build": "docker build -t bentido .",
     "docker:up": "docker compose up --build",
     "docker:up:3001": "WEB_PORT=3001 NEXTAUTH_URL=http://localhost:3001 docker compose up --build"
   },

@@ -3,20 +3,22 @@
 # Publishing (hosted DB e.g. Neon): build and run only the web image with DATABASE_URL set.
 # The container entrypoint runs `prisma migrate deploy` before `node server.js`.
 # To skip migrations (not recommended): set SKIP_PRISMA_MIGRATE=true
-#   docker build -t webroker .
+#   docker build -t bentido .
 #   docker run --rm -p 3000:3000 \
 #     -e DATABASE_URL="postgresql://..." \
 #     -e NEXTAUTH_SECRET="..." \
 #     -e NEXTAUTH_URL="https://your-domain.com" \
-#     webroker
+#     bentido
 #
 # First-time schema against the compose Postgres (from your host; Postgres exposed on 5432).
 # The web container normally runs migrations on startup; or apply once manually:
-#   DATABASE_URL="postgresql://webroker:webroker@127.0.0.1:5432/webroker?sslmode=disable" npm run db:migrate
+#   DATABASE_URL="postgresql://bentido:bentido@127.0.0.1:5432/bentido?sslmode=disable" npm run db:migrate
 #
 # Port 3000 already in use (e.g. `next dev`)? Use another host port and set NEXTAUTH_URL to match:
 #   WEB_PORT=3001 NEXTAUTH_URL=http://localhost:3001 docker compose up --build
 # Or: npm run docker:up:3001
+
+name: bentido
 
 services:
   web:
@@ -25,14 +27,14 @@ services:
     ports:
       - "${WEB_PORT:-3000}:3000"
     environment:
-      DATABASE_URL: postgresql://webroker:webroker@db:5432/webroker?sslmode=disable
+      DATABASE_URL: postgresql://bentido:bentido@db:5432/bentido?sslmode=disable
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-change-me-long-random-in-production}
       NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
       AUTH_TRUST_HOST: ${AUTH_TRUST_HOST:-true}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
       RESEND_API_KEY: ${RESEND_API_KEY:-}
-      EMAIL_FROM: ${EMAIL_FROM:-WeBroker <onboarding@resend.dev>}
+      EMAIL_FROM: ${EMAIL_FROM:-bentido <onboarding@resend.dev>}
     depends_on:
       db:
         condition: service_healthy
@@ -43,13 +45,13 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: webroker
-      POSTGRES_PASSWORD: webroker
-      POSTGRES_DB: webroker
+      POSTGRES_USER: bentido
+      POSTGRES_PASSWORD: bentido
+      POSTGRES_DB: bentido
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U webroker -d webroker"]
+      test: ["CMD-SHELL", "pg_isready -U bentido -d bentido"]
       interval: 5s
       timeout: 5s
       retries: 10
