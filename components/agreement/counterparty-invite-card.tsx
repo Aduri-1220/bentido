@@ -20,15 +20,37 @@ export function CounterpartyInviteCard({
   tenantEmail,
   inviteSentAt,
   changesComment,
+  selfApproveAllowed = false,
 }: {
   agreementId: string;
   status: Status;
   tenantEmail: string | null;
   inviteSentAt: string | null;
   changesComment: string | null;
+  selfApproveAllowed?: boolean;
 }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
+  const [approving, setApproving] = useState(false);
+
+  async function approveAsTenant() {
+    setApproving(true);
+    try {
+      const res = await fetch(`/api/agreements/${agreementId}/approve-as-tenant`, {
+        method: "POST",
+      });
+      if (!res.ok) {
+        const j = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(j.error ?? "Could not approve");
+      }
+      toast.success("Approved as tenant (demo)");
+      router.refresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not approve");
+    } finally {
+      setApproving(false);
+    }
+  }
 
   async function send() {
     setBusy(true);
@@ -107,6 +129,22 @@ export function CounterpartyInviteCard({
           <span className="ml-3 text-xs text-amber-700">
             Add tenant email in the wizard first.
           </span>
+        ) : null}
+        {selfApproveAllowed && status !== "APPROVED" ? (
+          <Button
+            onClick={approveAsTenant}
+            disabled={approving}
+            variant="outline"
+            size="sm"
+            className="ml-2"
+          >
+            {approving ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <CheckCircle2 className="h-4 w-4" />
+            )}
+            Approve as tenant (demo)
+          </Button>
         ) : null}
       </div>
     </div>

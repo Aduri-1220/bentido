@@ -39,6 +39,12 @@ export function assertPaymentProviderSafeForEnvironment(): void {
   );
 }
 
+/** Demo shortcut: owner can self-approve as tenant instead of waiting on the email link. */
+export function isCounterpartySelfApproveAllowed(): boolean {
+  if (process.env.ALLOW_SELF_APPROVE_TENANT_REVIEW === "true") return true;
+  return process.env.NODE_ENV !== "production";
+}
+
 export function getRazorpayPublishableKey(): string | undefined {
   return process.env.RAZORPAY_KEY_ID?.trim() || undefined;
 }

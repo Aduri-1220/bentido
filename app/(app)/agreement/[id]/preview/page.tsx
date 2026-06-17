@@ -13,6 +13,7 @@ import { CounterpartyInviteCard } from "@/components/agreement/counterparty-invi
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { WIZARD_ENTRY_UPLOAD_DRAFT } from "@/lib/constants";
+import { isCounterpartySelfApproveAllowed } from "@/lib/payment-config";
 
 export default async function PreviewPage({
   params,
@@ -121,6 +122,7 @@ export default async function PreviewPage({
             parsed.agreement.counterpartyInviteSentAt?.toISOString() ?? null
           }
           changesComment={parsed.agreement.counterpartyChangesComment ?? null}
+          selfApproveAllowed={isCounterpartySelfApproveAllowed()}
         />
       </div>
 
